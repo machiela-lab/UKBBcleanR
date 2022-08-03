@@ -1,0 +1,46 @@
+Package: UKBBcleanR
+Title: Prepare electronic medical record data from the UK Biobank for time-to-event analyses
+Version: 0.0.1
+Date: 2022-08-02
+Authors@R:
+    c(person(given = "Alexander",
+             family = "Depaulis",
+             role = c("aut", "cph"),
+             email = "alexander.depaulis@nih.gov"),
+      person(given = "Derek W.",
+             family = "Brown",
+             role = c("aut", "cre", "cph"),
+             email = "derek.brown@nih.gov",
+             comment = c(ORCID = "0000-0001-8393-1713")),
+      person(given = "Ian D.",
+             family = "Buller",
+             role = "ctb",
+             email = "ian.buller@nih.gov",
+             comment = c(ORCID = "0000-0001-9477-8582")),
+      person(given = "Mitchell J.",
+             family = "Machiela",
+             role = "ctb",
+             email = "mitchell.machiela@nih.gov",
+             comment = c(ORCID = "0000-0001-6538-9705")),
+      person(given = "NCI",
+             role = c("cph", "fnd")))
+Maintainer: Derek W. Brown <derek.brown@nih.gov>
+Description: Prepares time-to-event data from raw UK Biobank <https://www.ukbiobank.ac.uk/>
+             electronic medical record data. The prepared data can be used for cancer
+             outcomes, but could be modified for other health outcomes.
+License: MIT License
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Depends: 
+    R (>= 3.5.0)
+Imports: 
+
+Suggests: 
+    testthat,
+    R.rsp,
+    spelling
+VignetteBuilder: R.rsp
+Language: en-US
+URL: https://github.com/machiela-lab/UKBBcleanR
+BugReports: https://github.com/machiela-lab/UKBBcleanR/issues

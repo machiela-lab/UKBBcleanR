@@ -1,0 +1,32 @@
+---
+title: "UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-to-event analyses"
+author: '... (GitHub: @...)'
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-to-event analyses}
+  %\VignetteEngine{R.rsp::asis}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, cache = FALSE, fig.show = "hold")
+```
+
+Start with the necessary packages for the vignette.
+
+```{r packages, results='hide'}
+loadedPackages <- c("UKBBcleanR", ...)
+invisible(lapply(loadedPackages, library, character.only = TRUE))
+```
+
+### SUBTITLE
+
+...
+
+The system that rendered this vignette: 
+
+```{r system}
+sessionInfo()
+```
