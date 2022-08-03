@@ -5,7 +5,7 @@ UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
 
-**Date repository last updated**: August 02, 2022
+**Date repository last updated**: August 03, 2022
 
 ### Overview
 
@@ -38,7 +38,7 @@ To install the development version from GitHub:
 </thead>
 <tbody>
 <td><code>tte</code></td>
-<td>Prepares time-to-event data from raw [UK Biobank](https://www.ukbiobank.ac.uk/) electronic medical record data.</td>
+<td>Prepares time-to-event data from raw <a href="https://www.ukbiobank.ac.uk/">UK Biobank</a> electronic medical record data.</td>
 </tr>
 </tbody>
 <table>
@@ -47,13 +47,13 @@ The repository also includes the code to create the project hexsticker.
 
 ### Authors
 
-* **Alexander Depaulis** - *Integrative Tumor Epidemiology Branch (ITEB), Division of Cancer Epidemiology and Genetics (DCEG), National Cancer Institute (NCI), National Institutes of Health (NIH), Rockville, Maryland, USA*
+* **Alexander Depaulis** - *Integrative Tumor Epidemiology Branch (ITEB), Division of Cancer Epidemiology and Genetics (DCEG), National Cancer Institute (NCI), National Institutes of Health (NIH), Rockville, Maryland, USA* - [GitHub](https://github.com/adepaulis1)
 
 * **Derek W. Brown** - *ITEB, DCEG, NCI, NIH, Rockville, Maryland, USA* - [GitHub](https://github.com/derekbrown12) - [ORCID](https://orcid.org/0000-0001-8393-1713)
 
 See also the list of [contributors](https://github.com/machiela-lab/UKBBcleanR/graphs/contributors) who participated in this package, including:
 
-* **Ian D. Buller** - *Occupational and Environmental Epidemiology Branch, DCEG, NCI, NIH, , Rockville, Maryland, USA* - [GitHub](https://github.com/idblr) - [ORCID](https://orcid.org/0000-0001-9477-8582)
+* **Ian D. Buller** - *Occupational and Environmental Epidemiology Branch, DCEG, NCI, NIH, Rockville, Maryland, USA* - [GitHub](https://github.com/idblr) - [ORCID](https://orcid.org/0000-0001-9477-8582)
 
 * **Mitchell J. Machiela** - *ITEB, DCEG, NCI, NIH, Rockville, Maryland, USA* - [GitHub](https://github.com/machiela) - [ORCID](https://orcid.org/0000-0001-6538-9705)
 
