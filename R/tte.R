@@ -56,7 +56,7 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
   
   # User Cancer of interest
   if(length(cancer_of_interest_ICD10) == 0){
-    stop("Please specify the main cancer or outcome (ICD 10 code) of interest.")
+    stop("Please specify the main cancer or outcome (ICD 10 code) of interest in 'cancer_of_interest_ICD10'.")
   }
   
   
