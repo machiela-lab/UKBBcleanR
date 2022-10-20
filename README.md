@@ -51,6 +51,8 @@ The repository also includes the code to create the project hexsticker.
 
 * **Derek W. Brown** - *ITEB, DCEG, NCI, NIH, Rockville, Maryland, USA* - [GitHub](https://github.com/derekbrown12) - [ORCID](https://orcid.org/0000-0001-8393-1713)
 
+* **Aubrey K. Hubbard** - *ITEB, DCEG, NCI, NIH, Rockville, Maryland, USA* - [ORCID](https://orcid.org/0000-0003-4052-1110)
+
 See also the list of [contributors](https://github.com/machiela-lab/UKBBcleanR/graphs/contributors) who participated in this package, including:
 
 * **Ian D. Buller** - *Occupational and Environmental Epidemiology Branch, DCEG, NCI, NIH, Rockville, Maryland, USA* - [GitHub](https://github.com/idblr) - [ORCID](https://orcid.org/0000-0001-9477-8582)
