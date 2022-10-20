@@ -538,5 +538,5 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
 }
 
 ####################
-# End tte function #
+# End tte Function #
 #################### 
