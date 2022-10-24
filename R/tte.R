@@ -2,6 +2,7 @@
 #' 
 #' Prepares time-to-event data from raw  UK Biobank \url{https://www.ukbiobank.ac.uk/} electronic medical record data.
 #'
+#' @param combined_data Optional. A data frame containing all specified variables. If left \code{NULL}, \code{tte} assumes individual data sets have been correctly generated in a specified working directory.   
 #' @param cancer_of_interest_ICD10 Character list specifying the ICD-10 code(s) of the cancer(s) or disease(s) of interest. A value must be specified.
 #' @param prevalent_cancer_list Character list specifying the ICD10 code(s) of prevalent cancer(s) or disease(s) to identify. Can be left empty ex. "c()".
 #' @param prevalent_C_cancers Logical. If TRUE, will automatically include all ICD-10 codes that begin with 'C' to the \code{prevalent_cancer_list}. If FALSE (the default), will not include ICD-10 codes that begin with 'C' to the \code{prevalent_cancer_list}.  
@@ -46,7 +47,7 @@
 #' 
 #' @examples
 #' 
-tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevalent_C_cancers= TRUE, incident_cancer_list=c(), remove_prevalent_cancer=FALSE, remove_self_reported_cancer= FALSE) { 
+tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevalent_C_cancers= TRUE, incident_cancer_list=c(), remove_prevalent_cancer=FALSE, remove_self_reported_cancer= FALSE){
   
   begin <- Sys.time()
   
@@ -56,8 +57,91 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
   
   # User Cancer of interest
   if(length(cancer_of_interest_ICD10) == 0){
-    stop("Please specify the main cancer or outcome (ICD 10 code) of interest in 'cancer_of_interest_ICD10'.")
+    stop("UKBBcleanR Error: Please specify the main cancer or outcome (ICD 10 code) of interest.")
   }
+  
+  
+  #################
+  # Load datasets #
+  #################
+  
+  
+  #################
+  # Combined Data #
+  #################
+  if(!is.null(combined_data)){
+    
+    # User message
+    message("UKBBcleanR Message: Loading data from user defined combined data set")
+    
+  }  
+  
+  if(!is.null(combined_data)){
+    
+    # Split combined data into individual data sets
+    
+    # Enrollment
+    enroll<- combined_data %>% dplyr::select(f.eid,f.53.0.0)
+    
+    # Cancer Registry Records
+    cancer<- combined_data %>% dplyr::select(f.eid, starts_with("f.40005"), starts_with("f.40006"))
+    
+    # Inpatient Records
+    inpatient<- combined_data %>% dplyr::select(f.eid, starts_with("f.41270"), starts_with("f.41280"))
+    
+    # Self-report Cancers
+    self_report_cancer<- combined_data %>% dplyr::select(f.eid, starts_with("f.20001"))
+    
+    # Death
+    death <- readRDS("death_reg.rds")
+    
+    # Attrition
+    attrition<- combined_data %>% dplyr::select(f.eid, f.190.0.0, f.191.0.0)
+    
+    # User message
+    message("UKBBcleanR Message: Data successfully loaded from user defined combined data set")
+  }
+  
+  
+  ########################
+  # Individual Data sets #
+  ########################
+  if(is.null(combined_data)){
+    
+    # User message
+    message("UKBBcleanR Message: Loading data from individual data sets")
+  }
+  
+  if(is.null(combined_data)){
+    
+    # Enrollment
+    enroll<-readRDS("date_enroll.rds")
+    
+    # Cancer Registry Records
+    cancer<-readRDS("cancer_reg.rds")
+    
+    # Inpatient Records
+    inpatient<-readRDS("inpatient_data.rds")
+    
+    # Self-report Cancers
+    self_report_cancer <- readRDS("self_report_cancer.rds")
+    
+    # Death
+    death <- readRDS("death_reg.rds")
+    
+    # Attrition
+    attrition<-readRDS("attrition.rds")
+    
+    
+    # User message
+    message("UKBBcleanR Message: Data successfully loaded from individual data sets")
+  }
+  
+  
+  
+  #######################
+  # Clean each data set #
+  #######################
   
   
   ##############
@@ -67,7 +151,9 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
   # Dataset with enrollment dates
   # This is the start time of their "time to event" calculation
   # Multiple dates select the earliest
-  enroll<-readRDS("date_enroll.rds")
+  
+  # Make all columns character variables 
+  enroll[] <- lapply(enroll, as.character) # converts to character
   
   # creates a dataframe with earliest enrollment date
   enrollment_date <- enroll %>%
@@ -75,15 +161,14 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
     dplyr::select(f.eid, enrollment_date) %>% # selects for id and enrollment date
     filter(!is.na(enrollment_date)) # removes na from the enrollment date column
   
-  class(enrollment_date$enrollment_date)
+  enrollment_date$enrollment_date <- as.Date(enrollment_date$enrollment_date) # converting character back to dates
+  enrollment_date$f.eid <- as.integer(enrollment_date$f.eid) # converting character back to integer
   remove(enroll)
   
   
   ###########################
   # Cancer Registry Records #
   ###########################
-  
-  cancer<-readRDS("cancer_reg.rds")
   
   # manipulating cancer data 
   cancer[] <- lapply(cancer, as.character) # converts to character
@@ -108,9 +193,6 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
   ##################
   # Inpatient Data #
   ##################
-  
-  # inpatient data - ICD summary and date columns
-  inpatient<-readRDS("inpatient_data.rds")
   
   # reformatting
   inpatient[] <- lapply(inpatient, as.character) # converts to character
@@ -201,10 +283,10 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
   
   
   #######################
-  # Self report cancers # 
+  # Self-report cancers # 
   #######################
   
-  self_report_cancer <- readRDS("self_report_cancer.rds")
+  # Clean self-reported cancer data
   self_report_cancer <- self_report_cancer %>% filter_if(startsWith(names(.), "f.2"), any_vars(!is.na(.))) # filters for a report of cancer
   self_report_cancer$self_reported_cancer <- 1
   self_report_cancer_final <- self_report_cancer %>% dplyr::select(c(f.eid, self_reported_cancer))
@@ -214,16 +296,11 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
   # Death Records #
   ################# 
   
-  # imports death records file
-  death <- readRDS("death_reg.rds")
-  
   # select for just death date
   death_date <- death %>% dplyr::select(f.eid, starts_with("f.40000"))
   
-  # checking if death dates always match
-  death_date %>% filter(!is.na(f.40000.0.0), !is.na(f.40000.1.0)) %>%
-    mutate(deathmatch = f.40000.0.0 %in% f.40000.1.0) %>%
-    filter(deathmatch == TRUE) # death dates are the same
+  # reformat dates
+  death_date[-1] <- lapply(death_date[-1], as.Date, format = "%Y-%m-%d") # converts to date
   
   # selects for only one column of date of death 
   # used for joining
@@ -239,8 +316,6 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
   #############
   
   # lost to follow up data
-  attrition<-readRDS("attrition.rds")
-  
   # selecting for just f.eid and the date 
   # used for join
   attrition_date <- attrition %>%
@@ -279,7 +354,7 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
   
   
   ################
-  # joining data #
+  # Joining data #
   ################
   
   if(remove_prevalent_cancer == TRUE & remove_self_reported_cancer == TRUE){
@@ -520,9 +595,9 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
   
   
   
-  ##########################################
-  # joining Time to Event and Demographics #
-  ##########################################
+  ##################################
+  # Creat final time-to-event data #
+  ##################################
   Time_to_Event_final <- e10 #  creating final dataset 
   
   
@@ -534,7 +609,6 @@ tte <- function(cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevale
   time.elapse <- Sys.time() - begin
   print(time.elapse)
   return(Time_to_Event_final)
-
 }
 
 ####################
