@@ -107,7 +107,7 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
     self_report_cancer<- combined_data %>% dplyr::select(f.eid, starts_with("f.20001"))
     
     # Death
-    death <- readRDS("death_reg.rds")
+    death<- combined_data %>% dplyr::select(f.eid, starts_with("f.40000"))
     
     # Attrition
     attrition<- combined_data %>% dplyr::select(f.eid, f.190.0.0, f.191.0.0)
