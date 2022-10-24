@@ -63,7 +63,7 @@
 #' 
 tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_cancer_list=c(), prevalent_C_cancers= TRUE, incident_cancer_list=c(), remove_prevalent_cancer=FALSE, remove_self_reported_cancer= FALSE){
   
-  begin <- Sys.time()
+  begin <- proc.time()
   
   #####################
   # Warnings Messages #
@@ -86,7 +86,7 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
   if(!is.null(combined_data)){
     
     # User message
-    message("UKBBcleanR Message: Loading data from user defined combined data set")
+    message("UKBBcleanR Message: Loading data from user defined combined data set.")
     
   }  
   
@@ -113,7 +113,7 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
     attrition<- combined_data %>% dplyr::select(f.eid, f.190.0.0, f.191.0.0)
     
     # User message
-    message("UKBBcleanR Message: Data successfully loaded from user defined combined data set")
+    message("UKBBcleanR Message: Data successfully loaded from user defined combined data set.")
   }
   
   
@@ -123,7 +123,7 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
   if(is.null(combined_data)){
     
     # User message
-    message("UKBBcleanR Message: Loading data from individual data sets")
+    message("UKBBcleanR Message: Loading data from individual data sets.")
   }
   
   if(is.null(combined_data)){
@@ -148,7 +148,7 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
     
     
     # User message
-    message("UKBBcleanR Message: Data successfully loaded from individual data sets")
+    message("UKBBcleanR Message: Data successfully loaded from individual data sets.")
   }
   
   
@@ -157,6 +157,8 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
   # Clean each data set #
   #######################
   
+  # User message
+  message("UKBBcleanR Message: Beginning data cleaning:")
   
   ##############
   # Enrollment #
@@ -178,6 +180,9 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
   enrollment_date$enrollment_date <- as.Date(enrollment_date$enrollment_date) # converting character back to dates
   enrollment_date$f.eid <- as.integer(enrollment_date$f.eid) # converting character back to integer
   remove(enroll)
+  
+  # User message
+  message("                    - Enrollment data completed.")
   
   
   ###########################
@@ -203,6 +208,9 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
   names(cancer_long2) <- c("f.eid", "var", "disease_date", "disease_type") # matching column names to inpatient
   remove(cancer, cancer_long)
   
+  # User message
+  message("                    - Cancer Registry data completed.")
+  
   
   ##################
   # Inpatient Data #
@@ -218,10 +226,16 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
   inpatient_long2 <- inpatient_long %>% filter(!is.na(disease_type))
   remove(inpatient, inpatient_long)
   
+  # User message
+  message("                    - Inpatient data completed.")
+  
   
   #########################
   # Merge Cancer datasets #
   #########################
+  
+  # User message
+  message("                    - Combining and cleaning cancer registry and inpatient data.")
   
   disease_long <- rbind(cancer_long2, inpatient_long2) # bind the long cancer and inpatient data
   
@@ -305,6 +319,9 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
   self_report_cancer$self_reported_cancer <- 1
   self_report_cancer_final <- self_report_cancer %>% dplyr::select(c(f.eid, self_reported_cancer))
   
+  # User message
+  message("                    - Self-reported data completed.")  
+  
   
   #################
   # Death Records #
@@ -324,6 +341,9 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
   death_date2$death_date <-  as.Date(death_date2$death_date)
   remove(death, death_date)
   
+  # User message
+  message("                    - Death data completed.")    
+  
   
   #############
   # Attrition #
@@ -338,10 +358,17 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
     dplyr::select(f.eid, attrition_date)
   remove(attrition)
   
+  # User message
+  message("                    - Attrition data completed.")    
+  
+  
   
   ###########################
   # Case control assignment #
   ###########################
+  
+  # User message
+  message("UKBBcleanR Message: Generating Final time-to-event data.")
   
   # creates a new column for cases and controls  
   case_control <- enrolled_disease %>% filter(str_detect(disease_type, str_c(cancer_of_interest_ICD10, collapse = "|"))) %>% mutate(case_control = 1) %>% dplyr::select(f.eid, case_control)
@@ -375,12 +402,12 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
     e <- left_join(enrollment_date, prevalent_cancer_person_level[, c("f.eid", "prevalent_cancer_date", "prevalent_cancer_type", "prevalent_cancer")], by = c("f.eid"))
     e1 <- left_join(e, self_report_cancer_final[, c("f.eid","self_reported_cancer")], by = c("f.eid"))
     
-    e3 <- left_join(e1, death_date2, by = "f.eid")
-    e4 <- left_join(e3, attrition_date , by = "f.eid")
+    e3 <- left_join(e1, death_date2, by = c("f.eid"))
+    e4 <- left_join(e3, attrition_date, by = c("f.eid"))
     e5 <- left_join(e4, cancer_of_interest_person_level[, c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid"))
     
     if(length(incident_cancer_list) != 0){  
-      e6 <- left_join(e5, incident_cancer_person_level[,c("f.eid", "incident_date", "incident_type", "incident_cancer")])
+      e6 <- left_join(e5, incident_cancer_person_level[,c("f.eid", "incident_date", "incident_type", "incident_cancer")], by = c("f.eid"))
     } else{
       e6 <- e5 %>% mutate(incident_date = as.Date(NA))
     }
@@ -435,12 +462,12 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
     e <- left_join(enrollment_date, prevalent_cancer_person_level[, c("f.eid", "prevalent_cancer_date", "prevalent_cancer_type", "prevalent_cancer")], by = c("f.eid"))
     e1 <- left_join(e, self_report_cancer_final[, c("f.eid","self_reported_cancer")], by = c("f.eid"))
     
-    e3 <- left_join(e1, death_date2, by = "f.eid")
-    e4 <- left_join(e3, attrition_date , by = "f.eid")
+    e3 <- left_join(e1, death_date2, by = c("f.eid"))
+    e4 <- left_join(e3, attrition_date , by = c("f.eid"))
     e5 <- left_join(e4, cancer_of_interest_person_level[, c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid"))  
     
     if(length(incident_cancer_list) != 0){  
-      e6 <- left_join(e5, incident_cancer_person_level[,c("f.eid", "incident_date", "incident_type", "incident_cancer")])
+      e6 <- left_join(e5, incident_cancer_person_level[,c("f.eid", "incident_date", "incident_type", "incident_cancer")], by = c("f.eid"))
     } else{
       e6 <- e5 %>% mutate(incident_date = as.Date(NA))
     }
@@ -495,12 +522,12 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
     e <- left_join(enrollment_date, prevalent_cancer_person_level[, c("f.eid", "prevalent_cancer_date", "prevalent_cancer_type", "prevalent_cancer")], by = c("f.eid"))
     e1 <- left_join(e, self_report_cancer_final[, c("f.eid","self_reported_cancer")], by = c("f.eid"))
     
-    e3 <- left_join(e1, death_date2, by = "f.eid")
-    e4 <- left_join(e3, attrition_date , by = "f.eid")
+    e3 <- left_join(e1, death_date2, by = c("f.eid"))
+    e4 <- left_join(e3, attrition_date , by = c("f.eid"))
     e5 <- left_join(e4, cancer_of_interest_person_level[, c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid"))  
     
     if(length(incident_cancer_list) != 0){  
-      e6 <- left_join(e5, incident_cancer_person_level[,c("f.eid", "incident_date", "incident_type", "incident_cancer")])
+      e6 <- left_join(e5, incident_cancer_person_level[,c("f.eid", "incident_date", "incident_type", "incident_cancer")], by = c("f.eid"))
     } else{
       e6 <- e5 %>% mutate(incident_date = as.Date(NA))
     } 
@@ -554,12 +581,12 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
     e <- left_join(enrollment_date, prevalent_cancer_person_level[, c("f.eid", "prevalent_cancer_date", "prevalent_cancer_type", "prevalent_cancer")], by = c("f.eid"))
     e1 <- left_join(e, self_report_cancer_final[, c("f.eid","self_reported_cancer")], by = c("f.eid"))
     
-    e3 <- left_join(e1, death_date2, by = "f.eid")
-    e4 <- left_join(e3, attrition_date , by = "f.eid")
+    e3 <- left_join(e1, death_date2, by = c("f.eid"))
+    e4 <- left_join(e3, attrition_date , by = c("f.eid"))
     e5 <- left_join(e4, cancer_of_interest_person_level[, c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid")) 
     
     if(length(incident_cancer_list) != 0){  
-      e6 <- left_join(e5, incident_cancer_person_level[,c("f.eid", "incident_date", "incident_type", "incident_cancer")])
+      e6 <- left_join(e5, incident_cancer_person_level[,c("f.eid", "incident_date", "incident_type", "incident_cancer")], by = c("f.eid"))
     } else{
       e6 <- e5 %>% mutate(incident_date = as.Date(NA))
     }
@@ -619,9 +646,12 @@ tte <- function(combined_data=NULL, cancer_of_interest_ICD10=c(), prevalent_canc
   ######################### 
   # Return Generated Data #
   #########################
+  end <- proc.time()
+  time.elapse <- round((end - begin)/60, 2)
   
-  time.elapse <- Sys.time() - begin
-  print(time.elapse)
+  # User message
+  message(paste0("UKBBcleanR Message: Cleaning completed. Total time: ", time.elapse[3], " min."))
+  
   return(Time_to_Event_final)
 }
 
