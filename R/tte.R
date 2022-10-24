@@ -2,7 +2,7 @@
 #' 
 #' Prepares time-to-event data from raw  UK Biobank \url{https://www.ukbiobank.ac.uk/} electronic medical record data.
 #'
-#' @param combined_data Optional. A data frame containing all specified variables. If left \code{NULL}, \code{tte} assumes individual data sets have been correctly generated in a specified working directory.   
+#' @param combined_data Optional. A data frame containing all specified variables. If left \code{NULL}, \code{tte} assumes individual data sets have been correctly generated in a user specified working directory.   
 #' @param cancer_of_interest_ICD10 Character list specifying the ICD-10 code(s) of the cancer(s) or disease(s) of interest. A value must be specified.
 #' @param prevalent_cancer_list Character list specifying the ICD10 code(s) of prevalent cancer(s) or disease(s) to identify. Can be left empty ex. "c()".
 #' @param prevalent_C_cancers Logical. If TRUE, will automatically include all ICD-10 codes that begin with 'C' to the \code{prevalent_cancer_list}. If FALSE (the default), will not include ICD-10 codes that begin with 'C' to the \code{prevalent_cancer_list}.  
