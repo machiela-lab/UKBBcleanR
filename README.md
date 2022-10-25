@@ -88,7 +88,7 @@ library(lubridate)
  cancer_outcome <- c("C911") 
  
  # Set prevalent cancers to identify in data cleaning
- prevalent_cancers <- c("D37", "D38", "D39", "D40", "D41", "D42", "D43", "D44", "D45", "D46", "D47", "D48") 
+ prevalent_cancers <- c("D37","D38","D39","D40","D41","D42","D43","D44","D45","D46", "D47","D48") 
  
  # Set incident cancers to identify in data cleaning
  incident_cancers <- c("C900") 
@@ -99,24 +99,25 @@ library(lubridate)
 
 # Run without removing prevalent cancers from analysis
 test1<- tte(combined_data= testdata, 
-           cancer_of_interest_ICD10= cancer_outcome,
-           prevalent_cancer_list= prevalent_cancers, 
-           prevalent_C_cancers= TRUE, 
-           incident_cancer_list= incident_cancers, 
-           remove_prevalent_cancer=FALSE, 
-           remove_self_reported_cancer= FALSE)
+            cancer_of_interest_ICD10= cancer_outcome,
+            prevalent_cancer_list= prevalent_cancers, 
+            prevalent_C_cancers= TRUE, 
+            incident_cancer_list= incident_cancers, 
+            remove_prevalent_cancer=FALSE, 
+            remove_self_reported_cancer= FALSE)
+            
 table(test1$case_control_cancer_ignore)  # tte outcome ignoring other incident cancers
 table(test1$case_control_cancer_control) # tte outcome controlling for other incident cancers
 
 
 # Run with removing prevalent cancers from analysis
 test2<- tte(combined_data= testdata, 
-           cancer_of_interest_ICD10= cancer_outcome,
-           prevalent_cancer_list= prevalent_cancers, 
-           prevalent_C_cancers= TRUE, 
-           incident_cancer_list= incident_cancers, 
-           remove_prevalent_cancer=TRUE, 
-           remove_self_reported_cancer= TRUE)
+            cancer_of_interest_ICD10= cancer_outcome,
+            prevalent_cancer_list= prevalent_cancers, 
+            prevalent_C_cancers= TRUE, 
+            incident_cancer_list= incident_cancers, 
+            remove_prevalent_cancer=TRUE, 
+            remove_self_reported_cancer= TRUE)
 table(test2$case_control_cancer_ignore)  # tte outcome ignoring other incident cancers
 table(test2$case_control_cancer_control) # tte outcome controlling for other incident cancers
 
