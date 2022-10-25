@@ -12,7 +12,7 @@
 #' @aliases UKBBcleanR-package UKBBcleanR
 #' @docType package
 #' 
-#' @section Dependencies: The 'UKBBcleanR' package relies heavily upon \code{\link{...}} and \code{\link{...}} for ...
+#' @section Dependencies: The 'UKBBcleanR' package relies heavily upon \code{\link{tidyverse}} and \code{\link{data.table}} to clean raw UK Biobank data \url{https://www.ukbiobank.ac.uk/} and output a time-to-event data set. 
 #' 
 #' @author Alexander Depaulis\cr \emph{Integrative Tumor Epidemiology Branch (ITEB), Division of Cancer Epidemiology and Genetics (DCEG), National Cancer Institute (NCI), National Institutes of Health (NIH), Rockville, Maryland, USA} \cr
 #' @author Derek W. Brown\cr \emph{ITEB, DCEG, NCI, NIH, Rockville, Maryland, USA} \cr
@@ -22,6 +22,6 @@
 #' @keywords package
 NULL
 
-#' @import ...
-#' @importFrom ... ...
+#' @import tidyverse
+#' @import data.table
 NULL

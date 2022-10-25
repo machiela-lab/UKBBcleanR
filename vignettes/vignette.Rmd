@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, cache = FAL
 Start with the necessary packages for the vignette.
 
 ```{r packages, results='hide'}
-loadedPackages <- c("UKBBcleanR", ...)
+loadedPackages <- c("UKBBcleanR", "tidyverse", "data.table", "lubridate")
 invisible(lapply(loadedPackages, library, character.only = TRUE))
 ```
 

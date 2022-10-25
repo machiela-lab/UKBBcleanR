@@ -1,8 +1,8 @@
 context("tte")
 
-###################
+################
 # tte testthat #
-###################
+################
 
 test_that("tte throws error with invalid arguments", {
   
