@@ -61,7 +61,14 @@ See also the list of [contributors](https://github.com/machiela-lab/UKBBcleanR/g
 
 ### Getting Started
 
-* [INSERT ANY PREPARATION STEPS NECESSARY BEFORE RUNNING THE CODE HERE]
+The `tte` function requires several raw [UK Biobank](https://www.ukbiobank.ac.uk/) variables to run correctly. A detailed list of required variables are provided in the 'README_required_variables.txt' file.   
+
+Data can be loaded in the 'tte' function in two ways: 
+
+* The user can specify a working directory using 'setwd()' to where each individual data set is stored.  
+** NOTE: These individual data sets must contain the specific variables and have names which match the 'README_required_variables.txt' file
+
+* The user can generate a single data set containing all the variables of interest. This data set can then be loaded into the 'tte' function using the 'combined_data' input. 
 
 ### Usage
 
@@ -98,26 +105,26 @@ library(lubridate)
 # ------- #
 
 # Run without removing prevalent cancers from analysis
-test1<- tte(combined_data= testdata, 
-            cancer_of_interest_ICD10= cancer_outcome,
-            prevalent_cancer_list= prevalent_cancers, 
-            prevalent_C_cancers= TRUE, 
-            incident_cancer_list= incident_cancers, 
-            remove_prevalent_cancer=FALSE, 
-            remove_self_reported_cancer= FALSE)
+test1<- UKBBcleanR::tte(combined_data= testdata, 
+                        cancer_of_interest_ICD10= cancer_outcome,
+                        prevalent_cancer_list= prevalent_cancers, 
+                        prevalent_C_cancers= TRUE, 
+                        incident_cancer_list= incident_cancers, 
+                        remove_prevalent_cancer=FALSE, 
+                        remove_self_reported_cancer= FALSE)
             
 table(test1$case_control_cancer_ignore)  # tte outcome ignoring other incident cancers
 table(test1$case_control_cancer_control) # tte outcome controlling for other incident cancers
 
 
 # Run with removing prevalent cancers from analysis
-test2<- tte(combined_data= testdata, 
-            cancer_of_interest_ICD10= cancer_outcome,
-            prevalent_cancer_list= prevalent_cancers, 
-            prevalent_C_cancers= TRUE, 
-            incident_cancer_list= incident_cancers, 
-            remove_prevalent_cancer=TRUE, 
-            remove_self_reported_cancer= TRUE)
+test2<- UKBBcleanR::tte(combined_data= testdata, 
+                        cancer_of_interest_ICD10= cancer_outcome,
+                        prevalent_cancer_list= prevalent_cancers, 
+                        prevalent_C_cancers= TRUE, 
+                        incident_cancer_list= incident_cancers, 
+                        remove_prevalent_cancer=TRUE, 
+                        remove_self_reported_cancer= TRUE)
 table(test2$case_control_cancer_ignore)  # tte outcome ignoring other incident cancers
 table(test2$case_control_cancer_control) # tte outcome controlling for other incident cancers
 
