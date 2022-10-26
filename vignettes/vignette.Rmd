@@ -1,6 +1,6 @@
 ---
 title: "UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-to-event analyses"
-author: '... (GitHub: @...)'
+author: 'Derek W. Brown (GitHub: @derekbrown12)'
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -14,17 +14,117 @@ library(knitr)
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, cache = FALSE, fig.show = "hold")
 ```
 
-Start with the necessary packages for the vignette.
+## Description
 
-```{r packages, results='hide'}
-loadedPackages <- c("UKBBcleanR", "tidyverse", "data.table", "lubridate")
-invisible(lapply(loadedPackages, library, character.only = TRUE))
+The *UKBBcleanR* package contains an `R` function that prepares time-to-event data from raw [UK Biobank](https://www.ukbiobank.ac.uk/) electronic medical record data. The prepared data can be used for cancer outcomes, but could be modified for other health outcomes. This package is not available on [CRAN](https://cran.r-project.org/).
+
+## Installation
+The release version of the *UKBBcleanR* package can be installed from the GitHub repository by using the *devtools* package:
+```{r eval=FALSE}
+devtools::install_github("machiela-lab/UKBBcleanR")
+```
+*UKBBcleanR* depends on the *tidyverse* and *data.table* packages. 
+```{r eval=FALSE}
+install.packages("tidyverse")
+install.packages("data.table")
 ```
 
-### SUBTITLE
+Following installation, attach the *UKBBcleanR* and required packages with:
+```{r eval=FALSE}
+library(UKBBcleanR)
+library(tidyverse)
+library(data.table)
+```
 
-...
+## Usage
+Here we perform a hypothetical example of data cleaning where Chronic Lymphocytic Leukemia (CLL) is the cancer outcome of interest. 
 
+
+ICD-10 codes, terms and text within UK Biobank are used by permission of WHO, from: International Statistical Classification of Diseases and Related Health Problems, Tenth Revision (ICD-10). Vols 1-3. Geneva, World Health Organization, 1992-2016. Coding can be downloaded here as a tab-separated file directly from [UK Biobank](https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?tk=bN2V68SNND912GPV53iY2rumWkNQvSs9255965&id=19). 
+
+### Available Data
+Within *UKBBcleanR*, we include simulated UK Biobank sample data containing 30 individuals and 490 variables. A detailed list of required variables are provided in the `README_required_variables.txt` file. The raw UK Biobank data can be specified in two ways:
+
+* First option (as demonstrated below). Data can be loaded directly into the `tte` function. The user needs to create a data frame containing all specified variables
+
+* Second option. The user creates individual `rds` files that contain the variables specified in the `README_required_variables.txt` file. The user needs to specify the working directory using `setwd()` outside the function where these files are stored. The files are required to be named as: 
+    + date_enroll.rds
+    + cancer_reg.rds
+    + inpatient_data.rds
+    + self_report_cancer.rds
+    + death_reg.rds
+    + attrition.rds
+
+```{r eval=TRUE, warning=FALSE, message=FALSE, cache=TRUE}
+# Load required packages
+loadedPackages <- c("UKBBcleanR", "tidyverse", "data.table")
+invisible(lapply(loadedPackages, require, character.only = TRUE))
+
+# Create data frame containing sample data
+test_data<- as.data.frame(combined_data)
+```
+
+### Set function parameters
+For this example data cleaning, we will use CLL (ICD-10 code "C911") as the outcome of interest. We will also identify other non-CLL cancers in the data to control in our analyses. 
+```{r eval=TRUE}
+cancer_outcome <- c("C911") # ICD-10 code for CLL
+prevalent_cancers <- c("D37", "D38", "D39", "D40", "D41", "D42", "D43", "D44", "D45", "D46", "D47", "D48") # Prevalent ICD-10 codes to identify - can be blank ex. "c()"
+incident_cancers <- c("C900") # Incident ICD-10 codes to identify - can be blank ex. "c()"
+```
+
+### Time-to-event data creation
+Data creation is performed using `tte`. Within this example, we will not remove anyone identified to have prevalent cancer and the time of enrollment. 
+```{r eval=TRUE}
+tte_output_1<-  tte(combined_data= test_data, 
+                    cancer_of_interest_ICD10= cancer_outcome, 
+                    prevalent_cancer_list= prevalent_cancers, # Identify specified prevalent cancers
+                    prevalent_C_cancers= TRUE, # Include all ICD-10 codes that begin with 'C' to the 'prevalent_cancer_list'
+                    incident_cancer_list= incident_cancers, # Identify specified incident cancers 
+                    remove_prevalent_cancer=FALSE, # Do not exclude individuals with prevalent cancer(s) or disease(s) 
+                    remove_self_reported_cancer= FALSE # Do not exclude individuals with self reported cancer
+                   )
+```
+The generated time-to-event data is output as an object. In the example above, the object is named `tte_output_1`. There are two sets of time-to-event endpoints generated:
+* The first ignores user specified incident cancer (i.e. `incident_cancer_list`). These variables are named `case_control_cancer_ignore` and `censor_days_cancer_ignore` 
+* The second controls for user specified incident cancer (i.e. `incident_cancer_list`). These variables are named `case_control_cancer_control` and `censor_days_cancer_control` 
+
+```{r eval=TRUE}
+dim(tte_output_1)
+
+table(tte_output_1$case_control_cancer_ignore)
+summary(as.numeric(tte_output_1$censor_days_cancer_ignore))
+
+table(tte_output_1$case_control_cancer_control)
+summary(as.numeric(tte_output_1$censor_days_cancer_control))
+```
+From the above data cleaning, there are `30` individuals in the data set with `6` individuals  identified as having CLL via `case_control_cancer_ignore`, and `1` individual with CLL who also had incident multiple myeloma (ICD-10 code "C900") before their CLL diagnosis via `case_control_cancer_control`. 
+
+The above variables can be used directly in any time-to-event analyses, but there are individuals with CLL identified before enrollment (with negative follow-up time). To remove these individuals and remove other prevalent cancers, we can rerun the example removing anyone identified to have prevalent cancer and the time of enrollment. 
+```{r eval=TRUE}
+tte_output_2<-  tte(combined_data= test_data, 
+                    cancer_of_interest_ICD10= cancer_outcome, 
+                    prevalent_cancer_list= prevalent_cancers, # Identify specified prevalent cancers
+                    prevalent_C_cancers= TRUE, # Include all ICD-10 codes that begin with 'C' to the 'prevalent_cancer_list'
+                    incident_cancer_list= incident_cancers, # Identify specified incident cancers 
+                    remove_prevalent_cancer=TRUE, # Exclude individuals with prevalent cancer(s) or disease(s) 
+                    remove_self_reported_cancer= TRUE # Exclude individuals with self reported cancer
+                   )
+``` 
+Again, the generated time-to-event data is output as an object. In the example above, the object is named `tte_output_2`.  
+```{r eval=TRUE}
+dim(tte_output_2)
+
+table(tte_output_2$case_control_cancer_ignore)
+summary(as.numeric(tte_output_2$censor_days_cancer_ignore))
+
+table(tte_output_2$case_control_cancer_control)
+summary(as.numeric(tte_output_2$censor_days_cancer_control))
+```
+From the above data cleaning, there are `21` individuals in the data set with `3` individuals  identified as having CLL via `case_control_cancer_ignore`, and `1` individual with CLL who also had incident multiple myeloma (ICD-10 code "C900") before their CLL diagnosis via `case_control_cancer_control`.
+
+The individual with prevalent CLL has now been removed in the `tte_output_2` analysis. The above variables can be used directly in any time-to-event analyses. 
+
+### System setup
 The system that rendered this vignette: 
 
 ```{r system}
