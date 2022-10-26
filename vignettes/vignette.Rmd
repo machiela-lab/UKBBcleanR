@@ -40,14 +40,14 @@ library(data.table)
 Here we perform a hypothetical example of data cleaning where Chronic Lymphocytic Leukemia (CLL) is the cancer outcome of interest. 
 
 
-ICD-10 codes, terms and text within UK Biobank are used by permission of WHO, from: International Statistical Classification of Diseases and Related Health Problems, Tenth Revision (ICD-10). Vols 1-3. Geneva, World Health Organization, 1992-2016. Coding can be downloaded here as a tab-separated file directly from [UK Biobank](https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?tk=bN2V68SNND912GPV53iY2rumWkNQvSs9255965&id=19). 
+ICD-10 codes, terms and text within UK Biobank are used by permission of WHO, from: International Statistical Classification of Diseases and Related Health Problems, Tenth Revision (ICD-10). Vols 1-3. Geneva, World Health Organization, 1992-2016. Coding can be downloaded here as a tab-separated file directly from [UK Biobank](https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?tk=bN2V68SNND912GPV53iY2rumWkNQvSs9255965&id=19). A list of ICD-10 coding is also provided [here](https://github.com/machiela-lab/UKBBcleanR/blob/main/data-raw/ICD10_coding.txt). 
 
 ### Available Data
-Within *UKBBcleanR*, we include simulated UK Biobank sample data containing 30 individuals and 490 variables. A detailed list of required variables are provided in the `README_required_variables.txt` file. The raw UK Biobank data can be specified in two ways:
+Within *UKBBcleanR*, we include simulated UK Biobank sample data containing 30 individuals and 490 variables. A detailed list of required variables are provided in the [README_required_variables.txt](https://github.com/machiela-lab/UKBBcleanR/blob/main/data-raw/README_required_variables.txt) file. The raw UK Biobank data can be specified in two ways:
 
-* First option (as demonstrated below). Data can be loaded directly into the `tte` function. The user needs to create a data frame containing all specified variables. Example data is provided in the `data` folder.  
+* First option (as demonstrated below). Data can be loaded directly into the `tte` function. The user needs to create a data frame containing all specified variables. Example data is provided in the [`data`](https://github.com/machiela-lab/UKBBcleanR/tree/main/data) folder.  
 
-* Second option. The user creates individual `rds` files that contain the variables specified in the `README_required_variables.txt` file. The user needs to specify the working directory using `setwd()` outside the function where these files are stored. Example data is provided in the `data` folder.  The files are required to be named as: 
+* Second option. The user creates individual `rds` files that contain the variables specified in the [README_required_variables.txt](https://github.com/machiela-lab/UKBBcleanR/blob/main/data-raw/README_required_variables.txt) file. The user needs to specify the working directory using `setwd()` outside the function where these files are stored. Example data is provided in the [`data`](https://github.com/machiela-lab/UKBBcleanR/tree/main/data) folder.  The files are required to be named as: 
     + date_enroll.rds
     + cancer_reg.rds
     + inpatient_data.rds
