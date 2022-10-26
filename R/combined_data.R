@@ -5,7 +5,7 @@
 #' @format A data frame with 30 rows and 490 variables.
 #'
 #' @examples
-#'   mydata <- readRDS("~/UKBBcleanR/data/combined_data.rds")
+#'   head(combined_data)
 #'
 #' @source {Machiela Lab}
 "combined_data"

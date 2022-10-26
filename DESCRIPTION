@@ -35,6 +35,7 @@ Description: Prepares time-to-event data from raw UK Biobank <https://www.ukbiob
              outcomes, but could be modified for other health outcomes.
 License: MIT License
 Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Depends: 

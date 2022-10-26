@@ -63,8 +63,8 @@ Prepares time-to-event data from raw  UK Biobank \url{https://www.ukbiobank.ac.u
 This function will read-in raw UK Biobank data in 'RDS' format and generate time-to-event status and time based on user specified parameters.
 }
 \examples{
-# Load combined data from UKBBcleanR
-mydata <- readRDS("~/UKBBcleanR/data/combined_data.rds")
+# Load combined_data.rda from UKBBcleanR
+mydata <- combined_data
 # Set function parameters
 cancer_outcome <- c("C911") # ICD-10 code of the cancer of interest
 prevalent_cancers <- c("D37", "D38") # Prevalent ICD-10 codes to exclude
