@@ -1,15 +1,17 @@
-citHeader("To cite ndi in publications, please use:")
+citHeader("To cite UKBBcleanR in publications, please use:")
 
 citEntry(entry = "manual",
   title         = "UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-to-event analyses",
-  author        = personList(as.person("Alexander Depaulis"), as.person("Derek W. Brown")),
+  author        = personList(as.person("Alexander Depaulis"), 
+                             as.person("Derek W. Brown"),
+                             as.person("Aubrey K. Hubbard")),
   publisher     = "GitHub",
   year          = "2022",
   url           = "https://github.com/machiela-lab/UKBBcleanR",
   
   textVersion = 
-  paste("Alexander Depaulis & Derek W. Brown (2022).", 
-        "Prepare electronic medical record data from the UK Biobank for time-to-event analyses.",
+  paste("Alexander Depaulis, Derek W. Brown, & Aubrey K. Hubbard (2022).", 
+        "UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-to-event analyses.",
         "GitHub.",
         "Accessed by: https://github.com/machiela-lab/UKBBcleanR")
 )

@@ -16,13 +16,15 @@ Key content of the 'UKBBcleanR' package include:\cr
 \code{\link{tte}} Prepares time-to-event data from raw UK Biobank \url{https://www.ukbiobank.ac.uk/} electronic medical record data.
 }
 \section{Dependencies}{
- The 'UKBBcleanR' package relies heavily upon \code{\link{tidyverse}} and \code{\link{data.table}} to clean raw UK Biobank data \url{https://www.ukbiobank.ac.uk/} and output a time-to-event data set.
+ The 'UKBBcleanR' package relies heavily upon \code{\link{data.table}}, \code{\link{dplyr}}, and \code{\link{stringr}} to clean raw UK Biobank data \url{https://www.ukbiobank.ac.uk/} and output a time-to-event data set.
 }
 
 \author{
-Alexander Depaulis\cr \emph{Integrative Tumor Epidemiology Branch (ITEB), Division of Cancer Epidemiology and Genetics (DCEG), National Cancer Institute (NCI), National Institutes of Health (NIH), Rockville, Maryland, USA} \cr
+Alexander Depaulis\cr \emph{Integrative Tumor Epidemiology Branch (ITEB), Division of Cancer Epidemiology and Genetics (DCEG), National Cancer Institute (NCI), National Institutes of Health (NIH), Rockville, Maryland (MD), USA} \cr
 
-Derek W. Brown\cr \emph{ITEB, DCEG, NCI, NIH, Rockville, Maryland, USA} \cr
+Derek W. Brown\cr \emph{ITEB, DCEG, NCI, NIH, Rockville, MD, USA} \cr
+
+Aubrey K. Hubbard\cr \emph{ITEB, DCEG, NCI, NIH, Rockville, MD, USA} \cr
 
 Maintainer: D.W.B. \email{derek.brown@nih.gov}
 }

@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Derek W. Brown (GitHub: @derekbrown12)" />
+
+<meta name="date" content="2022-10-28" />
+
+<title>UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-to-event analyses</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">UKBBcleanR: Prepare electronic medical
+record data from the UK Biobank for time-to-event analyses</h1>
+<h4 class="author">Derek W. Brown (GitHub: <span class="citation">@derekbrown12</span>)</h4>
+<h4 class="date">2022-10-28</h4>
+
+
+
+<div id="description" class="section level2">
+<h2>Description</h2>
+<p>The <em>UKBBcleanR</em> package contains an <code>R</code> function
+that prepares time-to-event data from raw <a href="https://www.ukbiobank.ac.uk/">UK Biobank</a> electronic medical
+record data. The prepared data can be used for cancer outcomes but could
+be modified for other health outcomes. This package is not currently
+available on <a href="https://cran.r-project.org/">CRAN</a>.</p>
+</div>
+<div id="installation" class="section level2">
+<h2>Installation</h2>
+<p>The release version of the <em>UKBBcleanR</em> package can be
+installed from the GitHub repository by using the <em>devtools</em>
+package:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;devtools&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;machiela-lab/UKBBcleanR&quot;</span>)</span></code></pre></div>
+<p>The <em>UKBBcleanR</em> package depends on the <em>data.table</em>,
+<em>dplyr</em>, and <em>stringr</em> packages and may also need to be
+installed:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;data.table&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;dplyr&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;stringr&quot;</span>)</span></code></pre></div>
+<p>Following installation, attach the <em>UKBBcleanR</em> package
+with:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(UKBBcleanR)</span></code></pre></div>
+</div>
+<div id="usage" class="section level2">
+<h2>Usage</h2>
+<p>Here we perform a hypothetical example of data cleaning where Chronic
+Lymphocytic Leukemia (CLL) is the cancer outcome of interest.</p>
+<p>ICD-10 codes, terms, and text within UK Biobank are used by
+permission of WHO, from the International Statistical Classification of
+Diseases and Related Health Problems, Tenth Revision (ICD-10). Vols 1-3.
+Geneva, World Health Organization, 1992-2016. Coding can be downloaded
+here as a tab-separated file directly from <a href="https://biobank.ndph.ox.ac.uk/showcase/coding.cgi?tk=bN2V68SNND912GPV53iY2rumWkNQvSs9255965&amp;id=19">UK
+Biobank</a>. A list of ICD-10 coding is also provided <a href="https://github.com/machiela-lab/UKBBcleanR/blob/main/data-raw/ICD10_coding.txt">here</a>.</p>
+<div id="available-data" class="section level3">
+<h3>Available Data</h3>
+<p>Within the <em>UKBBcleanR</em> package, we include simulated UK
+Biobank sample data containing 30 individuals and 490 variables. A
+detailed list of required variables is provided in the <a href="https://github.com/machiela-lab/UKBBcleanR/blob/main/data-raw/README_required_variables.txt">README_required_variables.txt</a>
+file. The raw UK Biobank data can be specified in two ways:</p>
+<ul>
+<li><p>First option (as demonstrated below). Data can be loaded directly
+into the <code>tte</code> function. The user needs to create a data
+frame containing all specified variables. Example data is provided in
+the <a href="https://github.com/machiela-lab/UKBBcleanR/tree/main/data"><code>data</code></a>
+folder.</p></li>
+<li><p>Second option. The user creates individual <code>rds</code> files
+that contain the variables specified in the <a href="https://github.com/machiela-lab/UKBBcleanR/blob/main/data-raw/README_required_variables.txt">README_required_variables.txt</a>
+file. The user needs to specify the working directory using
+<code>setwd()</code> outside the function where these files are stored.
+Example data is provided in the <a href="https://github.com/machiela-lab/UKBBcleanR/tree/main/data"><code>data</code></a>
+folder. The files are required to be named as follows:</p>
+<ul>
+<li>date_enroll.rds</li>
+<li>cancer_reg.rds</li>
+<li>inpatient_data.rds</li>
+<li>self_report_cancer.rds</li>
+<li>death_reg.rds</li>
+<li>attrition.rds</li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create data frame containing sample data</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>test_data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(UKBBcleanR<span class="sc">::</span>combined_data)</span></code></pre></div>
+</div>
+<div id="set-function-parameters" class="section level3">
+<h3>Set function parameters</h3>
+<p>For this data cleaning example, we will use CLL (ICD-10 code “C911”)
+as the outcome of interest. We will also identify other non-CLL cancers
+in the data to control in our analyses.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>cancer_outcome <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;C911&quot;</span>) <span class="co"># ICD-10 code for CLL</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>prevalent_cancers <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;D37&quot;</span>, <span class="st">&quot;D38&quot;</span>, <span class="st">&quot;D39&quot;</span>, <span class="st">&quot;D40&quot;</span>, <span class="st">&quot;D41&quot;</span>, <span class="st">&quot;D42&quot;</span>, <span class="st">&quot;D43&quot;</span>, <span class="st">&quot;D44&quot;</span>, <span class="st">&quot;D45&quot;</span>, <span class="st">&quot;D46&quot;</span>, <span class="st">&quot;D47&quot;</span>, <span class="st">&quot;D48&quot;</span>) <span class="co"># Prevalent ICD-10 codes to identify - can be blank ex. &quot;c()&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>incident_cancers <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;C900&quot;</span>) <span class="co"># Incident ICD-10 codes to identify - can be blank ex. &quot;c()&quot;</span></span></code></pre></div>
+</div>
+<div id="time-to-event-data-creation" class="section level3">
+<h3>Time-to-event data creation</h3>
+<p>Data creation is performed using <code>tte</code>. Within this
+example, we will not remove anyone identified with prevalent cancer and
+the time of enrollment.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>tte_output_1 <span class="ot">&lt;-</span> <span class="fu">tte</span>(<span class="at">combined_data =</span> test_data, </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">cancer_of_interest_ICD10 =</span> cancer_outcome, </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">prevalent_cancer_list =</span> prevalent_cancers, <span class="co"># Identify specified prevalent cancers</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">prevalent_C_cancers =</span> <span class="cn">TRUE</span>, <span class="co"># Include all ICD-10 codes that begin with &#39;C&#39; to the &#39;prevalent_cancer_list&#39;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">incident_cancer_list =</span> incident_cancers, <span class="co"># Identify specified incident cancers </span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">remove_prevalent_cancer =</span> <span class="cn">FALSE</span>, <span class="co"># Do not exclude individuals with prevalent cancer(s) or disease(s) </span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">remove_self_reported_cancer =</span> <span class="cn">FALSE</span>) <span class="co"># Do not exclude individuals with self reported cancer</span></span></code></pre></div>
+<p>The generated time-to-event data is output as an object. In the
+example above, the object is named <code>tte_output_1</code>. There are
+two sets of time-to-event endpoints generated: * The first ignores
+user-specified incident cancer (i.e.,
+<code>incident_cancer_list</code>). These variables are named
+<code>case_control_cancer_ignore</code> and
+<code>censor_days_cancer_ignore</code> * The second controls for
+user-specified incident cancer (i.e.,
+<code>incident_cancer_list</code>). These variables are named
+<code>case_control_cancer_control</code> and
+<code>censor_days_cancer_control</code></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(tte_output_1)</span></code></pre></div>
+<pre><code>## [1] 30 22</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(tte_output_1<span class="sc">$</span>case_control_cancer_ignore)</span></code></pre></div>
+<pre><code>## 
+##  0  1 
+## 24  6</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">as.numeric</span>(tte_output_1<span class="sc">$</span>censor_days_cancer_ignore))</span></code></pre></div>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   -1131    1834    2709    2293    3032    3230</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(tte_output_1<span class="sc">$</span>case_control_cancer_control)</span></code></pre></div>
+<pre><code>## 
+##  0  1 
+## 25  5</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">as.numeric</span>(tte_output_1<span class="sc">$</span>censor_days_cancer_control))</span></code></pre></div>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   -1131    1784    2678    2218    3032    3230</code></pre>
+<p>From the above data cleaning, there are <code>30</code> individuals
+in the data set with <code>6</code> individuals identified as having CLL
+via <code>case_control_cancer_ignore</code> and <code>1</code>
+individual with CLL who also had incident multiple myeloma (ICD-10 code
+“C900”) before their CLL diagnosis via
+<code>case_control_cancer_control</code>.</p>
+<p>The above variables can be used directly in any time-to-event
+analyses, but there are individuals with CLL identified before
+enrollment (with negative follow-up time). To remove these individuals
+and other prevalent cancers, we can rerun the example removing anyone
+identified to have prevalent cancer and the time of enrollment.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>tte_output_2 <span class="ot">&lt;-</span> <span class="fu">tte</span>(<span class="at">combined_data =</span> test_data, </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">cancer_of_interest_ICD10 =</span> cancer_outcome, </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">prevalent_cancer_list =</span> prevalent_cancers, <span class="co"># Identify specified prevalent cancers</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">prevalent_C_cancers =</span> <span class="cn">TRUE</span>, <span class="co"># Include all ICD-10 codes that begin with &#39;C&#39; to the &#39;prevalent_cancer_list&#39;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">incident_cancer_list =</span> incident_cancers, <span class="co"># Identify specified incident cancers </span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">remove_prevalent_cancer =</span> <span class="cn">TRUE</span>, <span class="co"># Exclude individuals with prevalent cancer(s) or disease(s) </span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">remove_self_reported_cancer =</span> <span class="cn">TRUE</span>) <span class="co"># Exclude individuals with self reported cancer</span></span></code></pre></div>
+<p>Again, the generated time-to-event data is output as an object. In
+the example above, the object is named <code>tte_output_2</code>.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(tte_output_2)</span></code></pre></div>
+<pre><code>## [1] 21 22</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(tte_output_2<span class="sc">$</span>case_control_cancer_ignore)</span></code></pre></div>
+<pre><code>## 
+##  0  1 
+## 18  3</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">as.numeric</span>(tte_output_2<span class="sc">$</span>censor_days_cancer_ignore))</span></code></pre></div>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     535    1949    2768    2440    3037    3230</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(tte_output_2<span class="sc">$</span>case_control_cancer_control)</span></code></pre></div>
+<pre><code>## 
+##  0  1 
+## 19  2</code></pre>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">as.numeric</span>(tte_output_2<span class="sc">$</span>censor_days_cancer_control))</span></code></pre></div>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     240    1795    2768    2332    3037    3230</code></pre>
+<p>From the above data cleaning, there are <code>21</code> individuals
+in the data set with <code>3</code> individuals identified as having CLL
+via <code>case_control_cancer_ignore</code> and <code>1</code>
+individual with CLL who also had incident multiple myeloma (ICD-10 code
+“C900”) before their CLL diagnosis via
+<code>case_control_cancer_control</code>.</p>
+<p>The individual with prevalent CLL has now been removed in the
+<code>tte_output_2</code> analysis. The above variables can be used
+directly in any time-to-event analysis.</p>
+</div>
+<div id="system-setup" class="section level3">
+<h3>System setup</h3>
+<p>The system that rendered this vignette:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<pre><code>## R version 4.2.1 (2022-06-23)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
+## Running under: macOS Big Sur ... 10.16
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] UKBBcleanR_0.0.1 knitr_1.40      
+## 
+## loaded via a namespace (and not attached):
+##  [1] rstudioapi_0.14   magrittr_2.0.3    tidyselect_1.2.0  R6_2.5.1         
+##  [5] rlang_1.0.6       fastmap_1.1.0     fansi_1.0.3       stringr_1.4.1    
+##  [9] dplyr_1.0.10      tools_4.2.1       data.table_1.14.4 xfun_0.32        
+## [13] utf8_1.2.2        DBI_1.1.3         cli_3.4.1         withr_2.5.0      
+## [17] jquerylib_0.1.4   htmltools_0.5.3   assertthat_0.2.1  yaml_2.3.5       
+## [21] digest_0.6.29     tibble_3.1.8      lifecycle_1.0.3   sass_0.4.2       
+## [25] vctrs_0.5.0       glue_1.6.2        cachem_1.0.6      evaluate_0.16    
+## [29] rmarkdown_2.16    stringi_1.7.8     compiler_4.2.1    bslib_0.4.0      
+## [33] pillar_1.8.1      generics_0.1.3    jsonlite_1.8.0    pkgconfig_2.0.3</code></pre>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,7 +1,7 @@
 Package: UKBBcleanR
 Title: Prepare electronic medical record data from the UK Biobank for time-to-event analyses
 Version: 0.0.1
-Date: 2022-08-03
+Date: 2022-10-28
 Authors@R:
     c(person(given = "Alexander",
              family = "Depaulis",
@@ -33,7 +33,7 @@ Maintainer: Derek W. Brown <derek.brown@nih.gov>
 Description: Prepares time-to-event data from raw UK Biobank <https://www.ukbiobank.ac.uk/>
              electronic medical record data. The prepared data can be used for cancer
              outcomes, but could be modified for other health outcomes.
-License: MIT License
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
@@ -41,8 +41,9 @@ RoxygenNote: 7.2.1
 Depends: 
     R (>= 3.5.0)
 Imports: 
-    tidyverse,
     data.table,
+    dplyr,
+    stringr
 Suggests: 
     testthat,
     R.rsp,

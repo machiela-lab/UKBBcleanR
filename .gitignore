@@ -40,7 +40,7 @@ rsconnect/
 *.DS_Store
 
 # R installed data
-*.rds
+# *.rds
 
 # Sandbox
 build.R
