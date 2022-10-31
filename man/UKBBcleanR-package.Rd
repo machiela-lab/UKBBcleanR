@@ -9,7 +9,7 @@
 Prepare electronic medical record data from the UK Biobank for time-to-event analyses
 }
 \details{
-Prepares time-to-event data from raw UK Biobank \url{https://www.ukbiobank.ac.uk/} electronic medical record data. The prepared data can be used for cancer outcomes, but could be modified for other health outcomes.
+Prepares time-to-event data from raw UK Biobank \url{https://www.ukbiobank.ac.uk/} electronic medical record data. The prepared data can be used for cancer outcomes but could be modified for other health outcomes.
 
 Key content of the 'UKBBcleanR' package include:\cr
 
