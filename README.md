@@ -68,9 +68,9 @@ The `tte` function requires several raw [UK Biobank](https://www.ukbiobank.ac.uk
 Data can be loaded in the `tte` function in two ways: 
 
 * The user can specify a working directory using `setwd()` to where each individual data set is stored.  
-    + NOTE: These individual data sets must contain the specific variables and have names which match the [README_required_variables.txt](https://github.com/machiela-lab/UKBBcleanR/blob/main/data-raw/README_required_variables.txt) file
+    + NOTE: These individual data sets must contain the specific variables and have names which match the [README_required_variables.txt](https://github.com/machiela-lab/UKBBcleanR/blob/main/data-raw/README_required_variables.txt) file. Example data is available within the [package](https://github.com/machiela-lab/UKBBcleanR/tree/main/inst/extdata).
 
-* The user can generate a single data set containing all the variables of interest. This data set can then be loaded into the `tte` function using the `combined_data` argument. 
+* The user can generate a single data set containing all the variables of interest. This data set can then be loaded into the `tte` function using the `combined_data` argument. Example data is available within the [package](https://github.com/machiela-lab/UKBBcleanR/tree/main/inst/extdata).
 
 ### Usage
 

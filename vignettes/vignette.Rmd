@@ -48,7 +48,7 @@ Within the *UKBBcleanR* package, we include simulated UK Biobank sample data con
 
 * First option (as demonstrated below). Data can be loaded directly into the `tte` function. The user needs to create a data frame containing all specified variables. Example data is provided in the [`data`](https://github.com/machiela-lab/UKBBcleanR/tree/main/data) folder.
 
-* Second option. The user creates individual `rds` files that contain the variables specified in the [README_required_variables.txt](https://github.com/machiela-lab/UKBBcleanR/blob/main/data-raw/README_required_variables.txt) file. The user needs to specify the working directory using `setwd()` outside the function where these files are stored. Example data is provided in the [`data`](https://github.com/machiela-lab/UKBBcleanR/tree/main/data) folder. The files are required to be named as follows: 
+* Second option. The user creates individual `rds` files that contain the variables specified in the [README_required_variables.txt](https://github.com/machiela-lab/UKBBcleanR/blob/main/data-raw/README_required_variables.txt) file. The user needs to specify the working directory using `setwd()` outside the function where these files are stored. Example data is provided in the [`extdata`](https://github.com/machiela-lab/UKBBcleanR/tree/main/inst/extdata) folder. The files are required to be named as follows: 
     + date_enroll.rds
     + cancer_reg.rds
     + inpatient_data.rds
