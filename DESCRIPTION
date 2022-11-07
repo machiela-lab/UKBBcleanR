@@ -1,7 +1,7 @@
 Package: UKBBcleanR
 Title: Prepare electronic medical record data from the UK Biobank for time-to-event analyses
-Version: 0.0.1
-Date: 2022-10-28
+Version: 0.1.1
+Date: 2022-11-07
 Authors@R:
     c(person(given = "Alexander",
              family = "Depaulis",

@@ -7,11 +7,15 @@ citEntry(entry = "manual",
                              as.person("Aubrey K. Hubbard")),
   publisher     = "GitHub",
   year          = "2022",
+  number        = "0.1.1",
+  doi           = "10.5281/zenodo.7301712",
   url           = "https://github.com/machiela-lab/UKBBcleanR",
   
   textVersion = 
   paste("Alexander Depaulis, Derek W. Brown, & Aubrey K. Hubbard (2022).", 
         "UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-to-event analyses.",
         "GitHub.",
+        "v0.1.1.",
+        "DOI:10.5281/zenodo.7301712",
         "Accessed by: https://github.com/machiela-lab/UKBBcleanR")
 )
