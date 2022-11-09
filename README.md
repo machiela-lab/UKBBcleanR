@@ -129,6 +129,10 @@ table(test2$case_control_cancer_ignore)  # tte outcome ignoring other incident c
 table(test2$case_control_cancer_control) # tte outcome controlling for other incident cancers
 ```
 
+### Vignette
+
+We provide a [vignette](https://htmlpreview.github.io/?https://github.com/machiela-lab/UKBBcleanR/blob/main/vignettes/vignette.html) with a practical example and work through of the provided [example data](https://github.com/machiela-lab/UKBBcleanR/tree/main/inst/extdata).  
+    
 ### Funding
 
 Package was developed while the first author was a participant of the 2022 [National Institutes of Health](https://www.nih.gov/) [Summer Internship Program in Biomedical Research](https://www.training.nih.gov/programs/sip) and while the second author was a postdoctoral fellow supported by the [Cancer Prevention Fellowship Program](https://cpfp.cancer.gov/) at the [National Cancer Institute](https://www.cancer.gov/) (NCI) and the third author was a postdoctoral fellow in the NCI [Division of Cancer Epidemiology and Genetics](https://dceg.cancer.gov/).
