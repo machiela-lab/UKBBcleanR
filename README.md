@@ -7,7 +7,7 @@ UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7301712.svg)](https://doi.org/10.5281/zenodo.7301712)
 <!-- badges: end -->
 
-**Date repository last updated**: November 07, 2022
+**Date repository last updated**: November 22, 2022
 
 ### Overview
 

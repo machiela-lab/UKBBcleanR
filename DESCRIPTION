@@ -1,7 +1,7 @@
 Package: UKBBcleanR
 Title: Prepare electronic medical record data from the UK Biobank for time-to-event analyses
-Version: 0.1.1
-Date: 2022-11-07
+Version: 0.1.2
+Date: 2022-11-22
 Authors@R:
     c(person(given = "Alexander",
              family = "Depaulis",
@@ -10,7 +10,7 @@ Authors@R:
       person(given = "Derek W.",
              family = "Brown",
              role = c("aut", "cre", "cph"),
-             email = "derek.brown@nih.gov",
+             email = "derek9@gwmail.gwu.edu",
              comment = c(ORCID = "0000-0001-8393-1713")),
       person(given = "Aubrey K.",
              family = "Hubbard",
@@ -20,7 +20,7 @@ Authors@R:
       person(given = "Ian D.",
              family = "Buller",
              role = "ctb",
-             email = "ian.buller@nih.gov",
+             email = "ian.buller@alumni.emory.edu",
              comment = c(ORCID = "0000-0001-9477-8582")),
       person(given = "Mitchell J.",
              family = "Machiela",
@@ -29,7 +29,7 @@ Authors@R:
              comment = c(ORCID = "0000-0001-6538-9705")),
       person(given = "NCI",
              role = c("cph", "fnd")))
-Maintainer: Derek W. Brown <derek.brown@nih.gov>
+Maintainer: Derek W. Brown <derek9@gwmail.gwu.edu>
 Description: Prepares time-to-event data from raw UK Biobank <https://www.ukbiobank.ac.uk/>
              electronic medical record data. The prepared data can be used for cancer
              outcomes, but could be modified for other health outcomes.

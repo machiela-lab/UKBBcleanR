@@ -18,7 +18,7 @@
 #' @author Derek W. Brown\cr \emph{ITEB, DCEG, NCI, NIH, Rockville, MD, USA} \cr
 #' @author Aubrey K. Hubbard\cr \emph{ITEB, DCEG, NCI, NIH, Rockville, MD, USA} \cr
 #' 
-#' Maintainer: D.W.B. \email{derek.brown@@nih.gov}
+#' Maintainer: D.W.B. \email{derek9@@gwmail.gwu.edu}
 #'
 #' @keywords package
 NULL
