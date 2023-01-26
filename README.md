@@ -2,12 +2,13 @@ UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-
 ===================================================
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/machiela-lab/UKBBcleanR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/machiela-lab/UKBBcleanR/actions/workflows/R-CMD-check.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![GitHub last commit](https://img.shields.io/github/last-commit/machiela-lab/UKBBcleanR)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7301712.svg)](https://doi.org/10.5281/zenodo.7301712)
 <!-- badges: end -->
 
-**Date repository last updated**: November 22, 2022
+**Date repository last updated**: January 26, 2023
 
 ### Overview
 
@@ -51,13 +52,13 @@ The repository also includes the resources and code to create the project hex st
 
 * **Alexander Depaulis** - *Integrative Tumor Epidemiology Branch (ITEB), Division of Cancer Epidemiology and Genetics (DCEG), National Cancer Institute (NCI), National Institutes of Health (NIH), Rockville, Maryland (MD), USA* - [GitHub](https://github.com/adepaulis1)
 
-* **Derek W. Brown** - *ITEB, DCEG, NCI, NIH, Rockville, MD, USA* - [GitHub](https://github.com/derekbrown12) - [ORCID](https://orcid.org/0000-0001-8393-1713)
+* **Derek W. Brown** - *ITEB, DCEG, NCI, NIH, Rockville, MD, USA (original)* - [GitHub](https://github.com/derekbrown12) - [ORCID](https://orcid.org/0000-0001-8393-1713)
 
 * **Aubrey K. Hubbard** - *ITEB, DCEG, NCI, NIH, Rockville, MD, USA* - [ORCID](https://orcid.org/0000-0003-4052-1110)
 
 See also the list of [contributors](https://github.com/machiela-lab/UKBBcleanR/graphs/contributors) who participated in this package, including:
 
-* **Ian D. Buller** - *Occupational and Environmental Epidemiology Branch, DCEG, NCI, NIH, Rockville, MD, USA* - [GitHub](https://github.com/idblr) - [ORCID](https://orcid.org/0000-0001-9477-8582)
+* **Ian D. Buller** - *Social & Scientific Systems, Inc., a division of DLH Corporation, Silver Spring, Maryland (current)* - *Occupational and Environmental Epidemiology Branch, Division of Cancer Epidemiology and Genetics, National Cancer Institute, National Institutes of Health, Rockville, Maryland (original)* - [GitHub](https://github.com/idblr) - [ORCID](https://orcid.org/0000-0001-9477-8582)
 
 * **Mitchell J. Machiela** - *ITEB, DCEG, NCI, NIH, Rockville, MD, USA* - [GitHub](https://github.com/machiela) - [ORCID](https://orcid.org/0000-0001-6538-9705)
 
