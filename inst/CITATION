@@ -2,20 +2,20 @@ citHeader("To cite UKBBcleanR in publications, please use:")
 
 citEntry(entry = "manual",
   title         = "UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-to-event analyses",
-  author        = personList(as.person("Alexander Depaulis"), 
+  author        = personList(as.person("Alexander DePaulis"), 
                              as.person("Derek W. Brown"),
                              as.person("Aubrey K. Hubbard")),
   publisher     = "GitHub",
-  year          = "2022",
-  number        = "0.1.2",
+  year          = "2025",
+  number        = "0.1.3",
   doi           = "10.5281/zenodo.7301712",
   url           = "https://github.com/machiela-lab/UKBBcleanR",
   
   textVersion = 
-  paste("Alexander Depaulis, Derek W. Brown, & Aubrey K. Hubbard (2022).", 
+  paste("Alexander DePaulis, Derek W. Brown, & Aubrey K. Hubbard (2025).", 
         "UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-to-event analyses.",
         "GitHub.",
-        "v0.1.2.",
+        "v0.1.3.",
         "DOI:10.5281/zenodo.7301712",
         "Accessed by: https://github.com/machiela-lab/UKBBcleanR")
 )

@@ -1,5 +1,5 @@
 #' Prepare Time-to-Event data
-#' 
+#'
 #' Prepares time-to-event data from raw UK Biobank \url{https://www.ukbiobank.ac.uk/} electronic medical record data.
 #'
 #' @param combined_data Optional. A data frame containing all specified variables. If \code{NULL}, \code{tte} assumes individual data sets have been correctly generated in a user-specified working directory.
@@ -8,12 +8,12 @@
 #' @param prevalent_C_cancers Logical. If \code{TRUE}, will automatically include all ICD-10 codes that begin with 'C' to the \code{prevalent_cancer_list}. If \code{FALSE} (the default), will not include ICD-10 codes that begin with 'C' to the \code{prevalent_cancer_list}.
 #' @param incident_cancer_list Character list specifying the ICD-10 code(s) of incident cancer(s) or disease(s) to identify. Can be left empty ex. "c()".
 #' @param remove_prevalent_cancer Logical. If \code{TRUE}, will exclude cancer(s) or disease(s) specified in \code{prevalent_cancer_list} and/or \code{prevalent_C_cancers}. If \code{FALSE} (the default), will not exclude prevalent cancer(s) or disease(s).
-#' @param remove_self_reported_cancer Logical. If \code{TRUE}, will remove individuals who self-reported as having cancer. If \code{FALSE} (the default), will not exclude individuals with self-reported cancer. 
+#' @param remove_self_reported_cancer Logical. If \code{TRUE}, will remove individuals who self-reported as having cancer. If \code{FALSE} (the default), will not exclude individuals with self-reported cancer.
 #'
-#' @details This function will read-in raw UK Biobank data in 'RDS' format and generate time-to-event status and time based on user-specified parameters. 
-#' 
+#' @details This function will read-in raw UK Biobank data in 'RDS' format and generate time-to-event status and time based on user-specified parameters.
+#'
 #' @return An object of class "list". This is a named list with the following columns:
-#' 
+#'
 #' \describe{
 #' \item{\code{f.eid}}{UK Biobank generated ID.}
 #' \item{\code{enrollment_date}}{Individual level UK Biobank enrollment date extracted during data cleaning.}
@@ -38,12 +38,12 @@
 #' \item{\code{censor_days_cancer_ignore}}{Final time-to-event time in days. Calculated as the difference between \code{censor_date_cancer_ignore} and \code{enrollment_date}. This endpoint ignores any user-specified incident cancer(s) or disease(s).}
 #' \item{\code{case_control_cancer_ignore}}{Final time-to-event status variable. This endpoint ignores any user-specified incident cancer(s) or disease(s).}
 #' }
-#' 
+#'
 #' @import dplyr
 #' @importFrom data.table melt setDT
 #' @importFrom stringr fixed str_c str_detect
 #' @export
-#' 
+#'
 #' @examples
 #' # Load combined_data.rda from UKBBcleanR
 #' mydata <- combined_data
@@ -51,22 +51,23 @@
 #' cancer_outcome <- c("C911") # ICD-10 code of the cancer of interest
 #' prevalent_cancers <- c("D37", "D38") # Prevalent ICD-10 codes to exclude
 #' incident_cancers <- c("C900") # Incident cancer to control for in your analysis
-#' example_output <- tte(combined_data = mydata, 
-#'                       cancer_of_interest_ICD10 = cancer_outcome, 
-#'                       prevalent_cancer_list = prevalent_cancers, 
-#'                       prevalent_C_cancers = TRUE, 
-#'                       incident_cancer_list = incident_cancers, 
-#'                       remove_prevalent_cancer = FALSE, 
-#'                       remove_self_reported_cancer = FALSE)
-#' 
-tte <- function(combined_data = NULL, 
-                cancer_of_interest_ICD10 = c(), 
-                prevalent_cancer_list = c(), 
-                prevalent_C_cancers = TRUE, 
-                incident_cancer_list = c(), 
-                remove_prevalent_cancer = FALSE, 
+#' example_output <- tte(
+#'   combined_data = mydata,
+#'   cancer_of_interest_ICD10 = cancer_outcome,
+#'   prevalent_cancer_list = prevalent_cancers,
+#'   prevalent_C_cancers = TRUE,
+#'   incident_cancer_list = incident_cancers,
+#'   remove_prevalent_cancer = FALSE,
+#'   remove_self_reported_cancer = FALSE
+#' )
+#'
+tte <- function(combined_data = NULL,
+                cancer_of_interest_ICD10 = c(),
+                prevalent_cancer_list = c(),
+                prevalent_C_cancers = TRUE,
+                incident_cancer_list = c(),
+                remove_prevalent_cancer = FALSE,
                 remove_self_reported_cancer = FALSE) {
-  
   begin <- proc.time()
   
   #####################
@@ -75,7 +76,9 @@ tte <- function(combined_data = NULL,
   
   # User Cancer of interest
   if (length(cancer_of_interest_ICD10) == 0) {
-    stop("UKBBcleanR Error: Please specify the main cancer or outcome (ICD 10 code) of interest.")
+    stop(
+      "UKBBcleanR Error: Please specify the main cancer or outcome (ICD 10 code) of interest."
+    )
   }
   
   #################
@@ -86,33 +89,36 @@ tte <- function(combined_data = NULL,
   # Combined Data #
   #################
   if (!is.null(combined_data)) {
-    
     # User message
     message("UKBBcleanR Message: Loading data from user defined combined data set.")
     
-  }  
+  }
   
   if (!is.null(combined_data)) {
-    
     # Split combined data into individual data sets
     
     # Enrollment
-    enroll<- combined_data %>% dplyr::select(f.eid,f.53.0.0)
+    enroll <- combined_data %>% dplyr::select(f.eid, f.53.0.0)
     
     # Cancer Registry Records
-    cancer<- combined_data %>% dplyr::select(f.eid, starts_with("f.40005"), starts_with("f.40006"))
+    cancer <-
+      combined_data %>% dplyr::select(f.eid, starts_with("f.40005"), starts_with("f.40006"))
     
     # Inpatient Records
-    inpatient<- combined_data %>% dplyr::select(f.eid, starts_with("f.41270"), starts_with("f.41280"))
+    inpatient <-
+      combined_data %>% dplyr::select(f.eid, starts_with("f.41270"), starts_with("f.41280"))
     
     # Self-report Cancers
-    self_report_cancer<- combined_data %>% dplyr::select(f.eid, starts_with("f.20001"))
+    self_report_cancer <-
+      combined_data %>% dplyr::select(f.eid, starts_with("f.20001"))
     
     # Death
-    death<- combined_data %>% dplyr::select(f.eid, starts_with("f.40000"))
+    death <-
+      combined_data %>% dplyr::select(f.eid, starts_with("f.40000"))
     
     # Attrition
-    attrition<- combined_data %>% dplyr::select(f.eid, f.190.0.0, f.191.0.0)
+    attrition <-
+      combined_data %>% dplyr::select(f.eid, f.190.0.0, f.191.0.0)
     
     # User message
     message("UKBBcleanR Message: Data successfully loaded from user defined combined data set.")
@@ -122,21 +128,19 @@ tte <- function(combined_data = NULL,
   # Individual Data sets #
   ########################
   if (is.null(combined_data)) {
-    
     # User message
     message("UKBBcleanR Message: Loading data from individual data sets.")
   }
   
   if (is.null(combined_data)) {
-    
     # Enrollment
-    enroll<-readRDS("date_enroll.rds")
+    enroll <- readRDS("date_enroll.rds")
     
     # Cancer Registry Records
-    cancer<-readRDS("cancer_reg.rds")
+    cancer <- readRDS("cancer_reg.rds")
     
     # Inpatient Records
-    inpatient<-readRDS("inpatient_data.rds")
+    inpatient <- readRDS("inpatient_data.rds")
     
     # Self-report Cancers
     self_report_cancer <- readRDS("self_report_cancer.rds")
@@ -145,7 +149,7 @@ tte <- function(combined_data = NULL,
     death <- readRDS("death_reg.rds")
     
     # Attrition
-    attrition<-readRDS("attrition.rds")
+    attrition <- readRDS("attrition.rds")
     
     
     # User message
@@ -167,7 +171,7 @@ tte <- function(combined_data = NULL,
   # This is the start time of their "time to event" calculation
   # Multiple dates select the earliest
   
-  # Make all columns character variables 
+  # Make all columns character variables
   enroll[] <- lapply(enroll, as.character) # converts to character
   
   # creates a dataframe with earliest enrollment date
@@ -176,8 +180,10 @@ tte <- function(combined_data = NULL,
     dplyr::select(f.eid, enrollment_date) %>% # selects for id and enrollment date
     dplyr::filter(!is.na(enrollment_date)) # removes na from the enrollment date column
   
-  enrollment_date$enrollment_date <- as.Date(enrollment_date$enrollment_date) # converting character back to dates
-  enrollment_date$f.eid <- as.integer(enrollment_date$f.eid) # converting character back to integer
+  enrollment_date$enrollment_date <-
+    as.Date(enrollment_date$enrollment_date) # converting character back to dates
+  enrollment_date$f.eid <-
+    as.integer(enrollment_date$f.eid) # converting character back to integer
   remove(enroll)
   
   # User message
@@ -187,21 +193,27 @@ tte <- function(combined_data = NULL,
   # Cancer Registry Records #
   ###########################
   
-  # manipulating cancer data 
+  # manipulating cancer data
   cancer[] <- lapply(cancer, as.character) # converts to character
   
-  cancer <- colchange(cancer) # use colchange function to reformat data found in utils.R
+  cancer <-
+    colchange(cancer) # use colchange function to reformat data found in utils.R
   
   # converts from wide to long
-  cancer_long <- data.table::melt(data.table::setDT(cancer), 
-                                  measure.vars = list(grep("f40005", colnames(cancer), value = T), 
-                                                      grep("f40006", colnames(cancer), value = T)),
-                                  variable.name = "var", 
-                                  value.name = c("cancer_date", "cancer_type")) 
+  cancer_long <- data.table::melt(
+    data.table::setDT(cancer),
+    measure.vars = list(
+      grep("f40005", colnames(cancer), value = T),
+      grep("f40006", colnames(cancer), value = T)
+    ),
+    variable.name = "var",
+    value.name = c("cancer_date", "cancer_type")
+  )
   
   cancer_long2 <- cancer_long %>% dplyr::filter(!is.na(cancer_type))
   
-  names(cancer_long2) <- c("f.eid", "var", "disease_date", "disease_type") # matching column names to inpatient
+  names(cancer_long2) <-
+    c("f.eid", "var", "disease_date", "disease_type") # matching column names to inpatient
   remove(cancer, cancer_long)
   
   # User message
@@ -212,16 +224,23 @@ tte <- function(combined_data = NULL,
   ##################
   
   # reformatting
-  inpatient[] <- lapply(inpatient, as.character) # converts to character
-  colnames(inpatient) <- gsub("\\.0.\\b", ".", colnames(inpatient)) # removes ".0." from columns and replaces with "."
+  inpatient[] <-
+    lapply(inpatient, as.character) # converts to character
+  colnames(inpatient) <-
+    gsub("\\.0.\\b", ".", colnames(inpatient)) # removes ".0." from columns and replaces with "."
   
   # converts from wide to long
-  inpatient_long <- data.table::melt(data.table::setDT(inpatient), 
-                                     measure.vars = list(grep("f.41280", colnames(inpatient), value = T),
-                                                         grep("f.41270", colnames(inpatient), value = T)),
-                                     variable.name = "var",
-                                     value.name = c("disease_date", "disease_type")) 
-  inpatient_long2 <- inpatient_long %>% dplyr::filter(!is.na(disease_type))
+  inpatient_long <- data.table::melt(
+    data.table::setDT(inpatient),
+    measure.vars = list(
+      grep("f.41280", colnames(inpatient), value = T),
+      grep("f.41270", colnames(inpatient), value = T)
+    ),
+    variable.name = "var",
+    value.name = c("disease_date", "disease_type")
+  )
+  inpatient_long2 <-
+    inpatient_long %>% dplyr::filter(!is.na(disease_type))
   remove(inpatient, inpatient_long)
   
   # User message
@@ -234,17 +253,21 @@ tte <- function(combined_data = NULL,
   # User message
   message("                    - Combining and cleaning cancer registry and inpatient data.")
   
-  disease_long <- rbind(cancer_long2, inpatient_long2) # bind the long cancer and inpatient data
+  disease_long <-
+    rbind(cancer_long2, inpatient_long2) # bind the long cancer and inpatient data
   
   # checking class
   sapply(disease_long, class)
   
   # manipulating data
-  disease_long$disease_date <- as.Date(disease_long$disease_date) # converting character back to dates
-  disease_long$f.eid <- as.integer(disease_long$f.eid) # converting character back to integer
+  disease_long$disease_date <-
+    as.Date(disease_long$disease_date) # converting character back to dates
+  disease_long$f.eid <-
+    as.integer(disease_long$f.eid) # converting character back to integer
   
   # joining data
-  enrolled_disease <- dplyr::left_join(enrollment_date, disease_long, by = "f.eid")
+  enrolled_disease <-
+    dplyr::left_join(enrollment_date, disease_long, by = "f.eid")
   sapply(enrolled_disease, class)
   remove(disease_long)
   
@@ -252,81 +275,122 @@ tte <- function(combined_data = NULL,
   # Finding prior cancer #
   ########################
   
-  if (prevalent_C_cancers == TRUE) {  # identifies ICD-10 codes that begin with 'C'
-    if (length(prevalent_cancer_list) == 0) { 
+  if (prevalent_C_cancers == TRUE) {
+    # identifies ICD-10 codes that begin with 'C'
+    if (length(prevalent_cancer_list) == 0) {
       # prior cancer #
       
       # creates a logical variable if any f.eid had prior cancer
-      enrolled_disease_prior <- enrolled_disease %>% 
-        dplyr::mutate(prevalent_cancer = 
-                        ifelse(disease_date < enrollment_date & 
-                                 stringr::str_detect(disease_type, stringr::fixed("C", ignore_case = TRUE)) & 
-                                 !is.na(disease_type), 1, 0))  
+      enrolled_disease_prior <- enrolled_disease %>%
+        dplyr::mutate(
+          prevalent_cancer =
+            ifelse(
+              disease_date < enrollment_date &
+                stringr::str_detect(disease_type, stringr::fixed("C", ignore_case = TRUE)) &
+                !is.na(disease_type),
+              1,
+              0
+            )
+        )
     }
     
     # if the excluded prevalent cancer has values
-    if (length(prevalent_cancer_list) != 0) { 
+    if (length(prevalent_cancer_list) != 0) {
       # prior cancer #
       
       # creates a logical variable if any f.eid had prior cancer
-      enrolled_disease_prior <- enrolled_disease %>% 
-        dplyr::mutate(prevalent_cancer = ifelse(disease_date < enrollment_date & 
-                                                  stringr::str_detect(disease_type, stringr::fixed("C", ignore_case = TRUE)) & 
-                                                  !is.na(disease_type) | 
-                                                  disease_date < enrollment_date & 
-                                                  stringr::str_detect(disease_type, stringr::str_c(prevalent_cancer_list, collapse = "|")) &
-                                                  !is.na(disease_type), 1, 0))
+      enrolled_disease_prior <- enrolled_disease %>%
+        dplyr::mutate(
+          prevalent_cancer = ifelse(
+            disease_date < enrollment_date &
+              stringr::str_detect(disease_type, stringr::fixed("C", ignore_case = TRUE)) &
+              !is.na(disease_type) |
+              disease_date < enrollment_date &
+              stringr::str_detect(
+                disease_type,
+                stringr::str_c(prevalent_cancer_list, collapse = "|")
+              ) &
+              !is.na(disease_type),
+            1,
+            0
+          )
+        )
     }
   }
   
-  if (prevalent_C_cancers == FALSE) {  # Ignores ICD-10 codes that begin with 'C'
-    if (length(prevalent_cancer_list) == 0) { 
+  if (prevalent_C_cancers == FALSE) {
+    # Ignores ICD-10 codes that begin with 'C'
+    if (length(prevalent_cancer_list) == 0) {
       # prior cancer #
       
       # creates a logical variable if any f.eid had prior cancer
-      enrolled_disease_prior <- enrolled_disease %>% dplyr::mutate(prevalent_cancer = 0)
+      enrolled_disease_prior <-
+        enrolled_disease %>% dplyr::mutate(prevalent_cancer = 0)
     }
     
     # if the excluded prevalent cancer has values
-    if (length(prevalent_cancer_list) != 0) { 
+    if (length(prevalent_cancer_list) != 0) {
       # prior cancer #
       
       # creates a logical variable if any f.eid had prior cancer
-      enrolled_disease_prior <- enrolled_disease %>% 
-        dplyr::mutate(prevalent_cancer =
-                        ifelse(disease_date < enrollment_date & 
-                                 stringr::str_detect(disease_type, stringr::str_c(prevalent_cancer_list, collapse = "|")) & 
-                                 !is.na(disease_type), 1, 0))  
+      enrolled_disease_prior <- enrolled_disease %>%
+        dplyr::mutate(
+          prevalent_cancer =
+            ifelse(
+              disease_date < enrollment_date &
+                stringr::str_detect(
+                  disease_type,
+                  stringr::str_c(prevalent_cancer_list, collapse = "|")
+                ) &
+                !is.na(disease_type),
+              1,
+              0
+            )
+        )
     }
   }
   
-  prevalent_cancer <- enrolled_disease_prior[which(enrolled_disease_prior$prevalent_cancer == 1), ] # data set of prior cancer
-  prevalent_cancer_person_level <- prevalent_cancer %>% dplyr::group_by(f.eid) %>% dplyr::filter(row_number() == 1) # selects for only one ID - person level
-  names(prevalent_cancer_person_level) <- c("f.eid", "enrollment_date", "var", "prevalent_cancer_date", "prevalent_cancer_type", "prevalent_cancer") # renames the data
+  prevalent_cancer <-
+    enrolled_disease_prior[which(enrolled_disease_prior$prevalent_cancer == 1),] # data set of prior cancer
+  prevalent_cancer_person_level <-
+    prevalent_cancer %>% dplyr::group_by(f.eid) %>% dplyr::filter(row_number() == 1) # selects for only one ID - person level
+  names(prevalent_cancer_person_level) <-
+    c(
+      "f.eid",
+      "enrollment_date",
+      "var",
+      "prevalent_cancer_date",
+      "prevalent_cancer_type",
+      "prevalent_cancer"
+    ) # renames the data
   
   #######################
-  # Self-report cancers # 
+  # Self-report cancers #
   #######################
   
   # Clean self-reported cancer data
-  self_report_cancer <- self_report_cancer %>% dplyr::filter_if(startsWith(names(.), "f.2"), dplyr::any_vars(!is.na(.))) # filters for a report of cancer
+  self_report_cancer <-
+    self_report_cancer %>% dplyr::filter_if(startsWith(names(.), "f.2"), dplyr::any_vars(!is.na(.))) # filters for a report of cancer
   self_report_cancer$self_reported_cancer <- 1
-  self_report_cancer_final <- self_report_cancer %>% dplyr::select(c(f.eid, self_reported_cancer))
+  self_report_cancer_final <-
+    self_report_cancer %>% dplyr::select(c(f.eid, self_reported_cancer))
   
   # User message
-  message("                    - Self-reported data completed.")  
+  message("                    - Self-reported data completed.")
   
   #################
   # Death Records #
-  ################# 
+  #################
   
   # select for just death date
-  death_date <- death %>% dplyr::select(f.eid, dplyr::starts_with("f.40000"))
+  death_date <-
+    death %>% dplyr::select(f.eid, dplyr::starts_with("f.40000"))
   
   # reformat dates
-  death_date[-1] <- lapply(death_date[-1], as.Date, format = "%Y-%m-%d") # converts to date
+  death_date[-1] <-
+    lapply(death_date[-1], as.Date, format = "%Y-%m-%d") # converts to date
   
-  # selects for only one column of date of death 
+  # selects for only one column of date of death
   # used for joining
   death_date2 <- death_date %>%
     dplyr::mutate(death_date = pmin(f.40000.0.0, f.40000.1.0, na.rm = TRUE)) %>% # creates a new column with the earliest date
@@ -335,14 +399,14 @@ tte <- function(combined_data = NULL,
   remove(death, death_date)
   
   # User message
-  message("                    - Death data completed.")    
+  message("                    - Death data completed.")
   
   #############
   # Attrition #
   #############
   
   # lost to follow up data
-  # selecting for just f.eid and the date 
+  # selecting for just f.eid and the date
   # used for join
   attrition_date <- attrition %>%
     dplyr::rename(attrition_date = f.191.0.0) %>%
@@ -351,7 +415,7 @@ tte <- function(combined_data = NULL,
   remove(attrition)
   
   # User message
-  message("                    - Attrition data completed.")    
+  message("                    - Attrition data completed.")
   
   ###########################
   # Case control assignment #
@@ -360,278 +424,751 @@ tte <- function(combined_data = NULL,
   # User message
   message("UKBBcleanR Message: Generating Final time-to-event data.")
   
-  # creates a new column for cases and controls  
-  case_control <- enrolled_disease %>% 
-    dplyr::filter(str_detect(disease_type, stringr::str_c(cancer_of_interest_ICD10, collapse = "|"))) %>% 
-    dplyr::mutate(case_control = 1) %>% 
+  # creates a new column for cases and controls
+  case_control <- enrolled_disease %>%
+    dplyr::filter(str_detect(
+      disease_type,
+      stringr::str_c(cancer_of_interest_ICD10, collapse = "|")
+    )) %>%
+    dplyr::mutate(case_control = 1) %>%
     dplyr::select(f.eid, case_control)
-  enrolled_disease_assign <- dplyr::left_join(enrolled_disease, case_control, by = "f.eid") %>%
-    dplyr::mutate(case_control = ifelse(case_control == 1 & !is.na(case_control), 1, 0))
+  enrolled_disease_assign <-
+    dplyr::left_join(enrolled_disease, case_control, by = "f.eid") %>%
+    dplyr::mutate(case_control = ifelse(case_control == 1 &
+                                          !is.na(case_control), 1, 0))
   
   # cancer of interest cases
-  cancer_of_interest <- enrolled_disease_assign[which(enrolled_disease_assign$case_control == 1), ] # creates cancer data set
-  cancer_of_interest_person_level <- cancer_of_interest %>% 
-    dplyr::group_by(f.eid) %>% 
-    dplyr::filter(stringr::str_detect(disease_type, stringr::str_c(cancer_of_interest_ICD10, collapse = "|"))) %>%
+  cancer_of_interest <-
+    enrolled_disease_assign[which(enrolled_disease_assign$case_control == 1),] # creates cancer data set
+  cancer_of_interest_person_level <- cancer_of_interest %>%
+    dplyr::group_by(f.eid) %>%
+    dplyr::filter(stringr::str_detect(
+      disease_type,
+      stringr::str_c(cancer_of_interest_ICD10, collapse = "|")
+    )) %>%
     dplyr::filter(row_number() == 1) # cancer person level
-  names(cancer_of_interest_person_level) <- c("f.eid", "enrollment_date", "var", "case_date", "case_type", "case_control")
+  names(cancer_of_interest_person_level) <-
+    c("f.eid",
+      "enrollment_date",
+      "var",
+      "case_date",
+      "case_type",
+      "case_control")
   
-  # Specified incident cancers 
+  # Specified incident cancers
   if (length(incident_cancer_list) != 0) {
     # finds cases where the cancer of interest was diagnosed after a cancer was diagnosed
-    incident_cancer <- enrolled_disease %>% 
-      dplyr::mutate(incident_cancer = 
-                      ifelse(disease_date > enrollment_date & 
-                               stringr::str_detect(disease_type, stringr::str_c(incident_cancer_list, collapse = "|")) &
-                               !is.na(disease_type), 1, 0)) %>%
+    incident_cancer <- enrolled_disease %>%
+      dplyr::mutate(
+        incident_cancer =
+          ifelse(
+            disease_date > enrollment_date &
+              stringr::str_detect(
+                disease_type,
+                stringr::str_c(incident_cancer_list, collapse = "|")
+              ) &
+              !is.na(disease_type),
+            1,
+            0
+          )
+      ) %>%
       dplyr::filter(incident_cancer == 1)
     
-    incident_cancer_person_level <- incident_cancer %>% 
-      dplyr::group_by(f.eid) %>% 
+    incident_cancer_person_level <- incident_cancer %>%
+      dplyr::group_by(f.eid) %>%
       dplyr::arrange(f.eid, disease_date) %>%
       dplyr::filter(row_number() == 1)
-    names(incident_cancer_person_level) <- c("f.eid", "enrollment_date", "var", "incident_date", "incident_type", "incident_cancer")
+    names(incident_cancer_person_level) <-
+      c(
+        "f.eid",
+        "enrollment_date",
+        "var",
+        "incident_date",
+        "incident_type",
+        "incident_cancer"
+      )
   }
   
   ################
   # Joining data #
   ################
   
-  if (remove_prevalent_cancer == TRUE & remove_self_reported_cancer == TRUE) {
-    e <- dplyr::left_join(enrollment_date, 
-                          prevalent_cancer_person_level[ , c("f.eid", "prevalent_cancer_date", "prevalent_cancer_type", "prevalent_cancer")], by = c("f.eid"))
-    e1 <- dplyr::left_join(e, self_report_cancer_final[ , c("f.eid","self_reported_cancer")], by = c("f.eid"))
+  if (remove_prevalent_cancer == TRUE &
+      remove_self_reported_cancer == TRUE) {
+    e <- dplyr::left_join(enrollment_date,
+                          prevalent_cancer_person_level[, c("f.eid",
+                                                            "prevalent_cancer_date",
+                                                            "prevalent_cancer_type",
+                                                            "prevalent_cancer")],
+                          by = c("f.eid"))
+    e1 <-
+      dplyr::left_join(e, self_report_cancer_final[, c("f.eid", "self_reported_cancer")], by = c("f.eid"))
     e3 <- dplyr::left_join(e1, death_date2, by = c("f.eid"))
     e4 <- dplyr::left_join(e3, attrition_date, by = c("f.eid"))
-    e5 <- dplyr::left_join(e4, cancer_of_interest_person_level[ , c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid"))
+    e5 <-
+      dplyr::left_join(e4, cancer_of_interest_person_level[, c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid"))
     
-    if (length(incident_cancer_list) != 0) {  
-      e6 <- dplyr::left_join(e5, incident_cancer_person_level[ , c("f.eid", "incident_date", "incident_type", "incident_cancer")], by = c("f.eid"))
+    if (length(incident_cancer_list) != 0) {
+      e6 <-
+        dplyr::left_join(e5, incident_cancer_person_level[, c("f.eid",
+                                                              "incident_date",
+                                                              "incident_type",
+                                                              "incident_cancer")], by = c("f.eid"))
     } else{
       e6 <- e5 %>% dplyr::mutate(incident_date = as.Date(NA))
     }
     
-    e7 <- subset(e6, prevalent_cancer != 1 |  is.na(prevalent_cancer)) 
-    e8 <- subset(e7, self_reported_cancer != 1 | is.na(self_reported_cancer)) 
+    e7 <-
+      subset(e6, prevalent_cancer != 1 |  is.na(prevalent_cancer))
+    e8 <-
+      subset(e7, self_reported_cancer != 1 |
+               is.na(self_reported_cancer))
     
-    max_study_date <- max(enrolled_disease$disease_date, na.rm = TRUE) # date of most recent diagnosis
+    max_study_date <-
+      max(enrolled_disease$disease_date, na.rm = TRUE) # date of most recent diagnosis
     
     
-    e10 <- e8 %>% 
-      dplyr::mutate(censor_type_cancer_control =
-                      ifelse(death_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                             "death",
-                             ifelse(attrition_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                    "attrition",
-                                    ifelse(incident_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(incident_date),
-                                           "other_cancer", 
-                                           ifelse(case_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                  paste0(cancer_of_interest_ICD10, collapse = " & "), "study_end")))),
-                    censor_date_cancer_control =
-                      ifelse(death_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                             paste0(death_date),
-                             ifelse(attrition_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                    paste0(attrition_date),
-                                    ifelse(incident_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(incident_date),
-                                           paste0(incident_date), 
-                                           ifelse(case_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                  paste0(case_date), paste0(max_study_date))))),
-      
-      censor_days_cancer_control = as.Date(censor_date_cancer_control) - enrollment_date, 
-      
-      case_control_cancer_control = ifelse(censor_type_cancer_control == paste0(cancer_of_interest_ICD10, collapse = " & "), 1, 0),
-      
-      censor_type_cancer_ignore = ifelse(death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                         "death",
-                                         ifelse(attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                "attrition",
-                                                ifelse(case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                       paste0(cancer_of_interest_ICD10, collapse = " & "), "study_end"))),
-      
-      censor_date_cancer_ignore = ifelse(death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                         paste0(death_date),
-                                         ifelse(attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                paste0(attrition_date),
-                                                ifelse(case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                       paste0(case_date), paste0(max_study_date)))),
-      
-      censor_days_cancer_ignore = as.Date(censor_date_cancer_ignore) - enrollment_date,
-      
-      case_control_cancer_ignore = ifelse(censor_type_cancer_ignore == paste0(cancer_of_interest_ICD10, collapse = " & "), 1, 0)) 
+    e10 <- e8 %>%
+      dplyr::mutate(
+        censor_type_cancer_control =
+          ifelse(
+            death_date == pmin(
+              death_date,
+              attrition_date,
+              incident_date,
+              case_date,
+              na.rm = TRUE
+            ) & !is.na(death_date),
+            "death",
+            ifelse(
+              attrition_date == pmin(
+                death_date,
+                attrition_date,
+                incident_date,
+                case_date,
+                na.rm = TRUE
+              ) & !is.na(attrition_date),
+              "attrition",
+              ifelse(
+                incident_date == pmin(
+                  death_date,
+                  attrition_date,
+                  incident_date,
+                  case_date,
+                  na.rm = TRUE
+                ) & !is.na(incident_date),
+                "other_cancer",
+                ifelse(
+                  case_date == pmin(
+                    death_date,
+                    attrition_date,
+                    incident_date,
+                    case_date,
+                    na.rm = TRUE
+                  ) & !is.na(case_date),
+                  paste0(cancer_of_interest_ICD10, collapse = " & "),
+                  "study_end"
+                )
+              )
+            )
+          ),
+        censor_date_cancer_control =
+          ifelse(
+            death_date == pmin(
+              death_date,
+              attrition_date,
+              incident_date,
+              case_date,
+              na.rm = TRUE
+            ) & !is.na(death_date),
+            paste0(death_date),
+            ifelse(
+              attrition_date == pmin(
+                death_date,
+                attrition_date,
+                incident_date,
+                case_date,
+                na.rm = TRUE
+              ) & !is.na(attrition_date),
+              paste0(attrition_date),
+              ifelse(
+                incident_date == pmin(
+                  death_date,
+                  attrition_date,
+                  incident_date,
+                  case_date,
+                  na.rm = TRUE
+                ) & !is.na(incident_date),
+                paste0(incident_date),
+                ifelse(
+                  case_date == pmin(
+                    death_date,
+                    attrition_date,
+                    incident_date,
+                    case_date,
+                    na.rm = TRUE
+                  ) & !is.na(case_date),
+                  paste0(case_date),
+                  paste0(max_study_date)
+                )
+              )
+            )
+          ),
+        
+        censor_days_cancer_control = as.Date(censor_date_cancer_control) - enrollment_date,
+        
+        case_control_cancer_control = ifelse(
+          censor_type_cancer_control == paste0(cancer_of_interest_ICD10, collapse = " & "),
+          1,
+          0
+        ),
+        
+        censor_type_cancer_ignore = ifelse(
+          death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+            !is.na(death_date),
+          "death",
+          ifelse(
+            attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+              !is.na(attrition_date),
+            "attrition",
+            ifelse(
+              case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+                !is.na(case_date),
+              paste0(cancer_of_interest_ICD10, collapse = " & "),
+              "study_end"
+            )
+          )
+        ),
+        
+        censor_date_cancer_ignore = ifelse(
+          death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+            !is.na(death_date),
+          paste0(death_date),
+          ifelse(
+            attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+              !is.na(attrition_date),
+            paste0(attrition_date),
+            ifelse(
+              case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+                !is.na(case_date),
+              paste0(case_date),
+              paste0(max_study_date)
+            )
+          )
+        ),
+        
+        censor_days_cancer_ignore = as.Date(censor_date_cancer_ignore) - enrollment_date,
+        
+        case_control_cancer_ignore = ifelse(
+          censor_type_cancer_ignore == paste0(cancer_of_interest_ICD10, collapse = " & "),
+          1,
+          0
+        )
+      )
   }
   
-  if (remove_prevalent_cancer == TRUE & remove_self_reported_cancer == FALSE) {
+  if (remove_prevalent_cancer == TRUE &
+      remove_self_reported_cancer == FALSE) {
     e <- dplyr::left_join(enrollment_date,
-                          prevalent_cancer_person_level[ , c("f.eid", "prevalent_cancer_date", "prevalent_cancer_type", "prevalent_cancer")],
+                          prevalent_cancer_person_level[, c("f.eid",
+                                                            "prevalent_cancer_date",
+                                                            "prevalent_cancer_type",
+                                                            "prevalent_cancer")],
                           by = c("f.eid"))
-    e1 <- dplyr::left_join(e, self_report_cancer_final[ , c("f.eid","self_reported_cancer")], by = c("f.eid"))
+    e1 <-
+      dplyr::left_join(e, self_report_cancer_final[, c("f.eid", "self_reported_cancer")], by = c("f.eid"))
     e3 <- dplyr::left_join(e1, death_date2, by = c("f.eid"))
     e4 <- dplyr::left_join(e3, attrition_date, by = c("f.eid"))
-    e5 <- dplyr::left_join(e4, cancer_of_interest_person_level[ , c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid"))  
+    e5 <-
+      dplyr::left_join(e4, cancer_of_interest_person_level[, c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid"))
     
-    if (length(incident_cancer_list) != 0) {  
-      e6 <- dplyr::left_join(e5, incident_cancer_person_level[ , c("f.eid", "incident_date", "incident_type", "incident_cancer")], by = c("f.eid"))
+    if (length(incident_cancer_list) != 0) {
+      e6 <-
+        dplyr::left_join(e5, incident_cancer_person_level[, c("f.eid",
+                                                              "incident_date",
+                                                              "incident_type",
+                                                              "incident_cancer")], by = c("f.eid"))
     } else {
       e6 <- e5 %>% dplyr::mutate(incident_date = as.Date(NA))
     }
     
-    e7 <- subset(e6, prevalent_cancer != 1 |  is.na(prevalent_cancer)) 
+    e7 <-
+      subset(e6, prevalent_cancer != 1 |  is.na(prevalent_cancer))
     
-    max_study_date <- max(enrolled_disease$disease_date, na.rm = TRUE) # date of most recent diagnosis
+    max_study_date <-
+      max(enrolled_disease$disease_date, na.rm = TRUE) # date of most recent diagnosis
     
-    e10 <- e7 %>% 
-      dplyr::mutate(censor_type_cancer_control = ifelse(death_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                                        "death",
-                                                        ifelse(attrition_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                               "attrition",
-                                                               ifelse(incident_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(incident_date),
-                                                                      "other_cancer", 
-                                                                      ifelse(case_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(case_date), 
-                                                                             paste0(cancer_of_interest_ICD10, collapse = " & "), "study_end")))),
-                    censor_date_cancer_control = ifelse(death_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                                        paste0(death_date),
-                                                        ifelse(attrition_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                               paste0(attrition_date),
-                                                               ifelse(incident_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(incident_date),
-                                                                      paste0(incident_date), 
-                                                                      ifelse(case_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                                             paste0(case_date), paste0(max_study_date))))),
-      
-      censor_days_cancer_control = as.Date(censor_date_cancer_control) - enrollment_date, 
-      
-      case_control_cancer_control = ifelse(censor_type_cancer_control == paste0(cancer_of_interest_ICD10, collapse = " & "), 1, 0),
-      
-      censor_type_cancer_ignore = ifelse(death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                         "death",
-                                         ifelse(attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                "attrition",
-                                                ifelse(case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                       paste0(cancer_of_interest_ICD10, collapse = " & "), "study_end"))),
-      
-      censor_date_cancer_ignore = ifelse(death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                         paste0(death_date),
-                                         ifelse(attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                paste0(attrition_date),
-                                                ifelse(case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                       paste0(case_date), paste0(max_study_date)))),
-      
-      censor_days_cancer_ignore = as.Date(censor_date_cancer_ignore) - enrollment_date,
-      
-      case_control_cancer_ignore = ifelse(censor_type_cancer_ignore == paste0(cancer_of_interest_ICD10, collapse = " & "), 1, 0)) 
+    e10 <- e7 %>%
+      dplyr::mutate(
+        censor_type_cancer_control = ifelse(
+          death_date == pmin(
+            death_date,
+            attrition_date,
+            incident_date,
+            case_date,
+            na.rm = TRUE
+          ) & !is.na(death_date),
+          "death",
+          ifelse(
+            attrition_date == pmin(
+              death_date,
+              attrition_date,
+              incident_date,
+              case_date,
+              na.rm = TRUE
+            ) & !is.na(attrition_date),
+            "attrition",
+            ifelse(
+              incident_date == pmin(
+                death_date,
+                attrition_date,
+                incident_date,
+                case_date,
+                na.rm = TRUE
+              ) & !is.na(incident_date),
+              "other_cancer",
+              ifelse(
+                case_date == pmin(
+                  death_date,
+                  attrition_date,
+                  incident_date,
+                  case_date,
+                  na.rm = TRUE
+                ) & !is.na(case_date),
+                paste0(cancer_of_interest_ICD10, collapse = " & "),
+                "study_end"
+              )
+            )
+          )
+        ),
+        censor_date_cancer_control = ifelse(
+          death_date == pmin(
+            death_date,
+            attrition_date,
+            incident_date,
+            case_date,
+            na.rm = TRUE
+          ) & !is.na(death_date),
+          paste0(death_date),
+          ifelse(
+            attrition_date == pmin(
+              death_date,
+              attrition_date,
+              incident_date,
+              case_date,
+              na.rm = TRUE
+            ) & !is.na(attrition_date),
+            paste0(attrition_date),
+            ifelse(
+              incident_date == pmin(
+                death_date,
+                attrition_date,
+                incident_date,
+                case_date,
+                na.rm = TRUE
+              ) & !is.na(incident_date),
+              paste0(incident_date),
+              ifelse(
+                case_date == pmin(
+                  death_date,
+                  attrition_date,
+                  incident_date,
+                  case_date,
+                  na.rm = TRUE
+                ) & !is.na(case_date),
+                paste0(case_date),
+                paste0(max_study_date)
+              )
+            )
+          )
+        ),
+        
+        censor_days_cancer_control = as.Date(censor_date_cancer_control) - enrollment_date,
+        
+        case_control_cancer_control = ifelse(
+          censor_type_cancer_control == paste0(cancer_of_interest_ICD10, collapse = " & "),
+          1,
+          0
+        ),
+        
+        censor_type_cancer_ignore = ifelse(
+          death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+            !is.na(death_date),
+          "death",
+          ifelse(
+            attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+              !is.na(attrition_date),
+            "attrition",
+            ifelse(
+              case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+                !is.na(case_date),
+              paste0(cancer_of_interest_ICD10, collapse = " & "),
+              "study_end"
+            )
+          )
+        ),
+        
+        censor_date_cancer_ignore = ifelse(
+          death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+            !is.na(death_date),
+          paste0(death_date),
+          ifelse(
+            attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+              !is.na(attrition_date),
+            paste0(attrition_date),
+            ifelse(
+              case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+                !is.na(case_date),
+              paste0(case_date),
+              paste0(max_study_date)
+            )
+          )
+        ),
+        
+        censor_days_cancer_ignore = as.Date(censor_date_cancer_ignore) - enrollment_date,
+        
+        case_control_cancer_ignore = ifelse(
+          censor_type_cancer_ignore == paste0(cancer_of_interest_ICD10, collapse = " & "),
+          1,
+          0
+        )
+      )
   }
   
-  if (remove_prevalent_cancer == FALSE & remove_self_reported_cancer == TRUE) {
-    e <- dplyr::left_join(enrollment_date, prevalent_cancer_person_level[ , c("f.eid", "prevalent_cancer_date", "prevalent_cancer_type", "prevalent_cancer")], by = c("f.eid"))
-    e1 <- dplyr::left_join(e, self_report_cancer_final[ , c("f.eid","self_reported_cancer")], by = c("f.eid"))
+  if (remove_prevalent_cancer == FALSE &
+      remove_self_reported_cancer == TRUE) {
+    e <-
+      dplyr::left_join(enrollment_date,
+                       prevalent_cancer_person_level[, c("f.eid",
+                                                         "prevalent_cancer_date",
+                                                         "prevalent_cancer_type",
+                                                         "prevalent_cancer")],
+                       by = c("f.eid"))
+    e1 <-
+      dplyr::left_join(e, self_report_cancer_final[, c("f.eid", "self_reported_cancer")], by = c("f.eid"))
     e3 <- dplyr::left_join(e1, death_date2, by = c("f.eid"))
     e4 <- dplyr::left_join(e3, attrition_date, by = c("f.eid"))
-    e5 <- dplyr::left_join(e4, cancer_of_interest_person_level[ , c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid"))  
+    e5 <-
+      dplyr::left_join(e4, cancer_of_interest_person_level[, c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid"))
     
-    if (length(incident_cancer_list) != 0) {  
-      e6 <- dplyr::left_join(e5, incident_cancer_person_level[ , c("f.eid", "incident_date", "incident_type", "incident_cancer")], by = c("f.eid"))
-    } else{
-      e6 <- e5 %>% dplyr::mutate(incident_date = as.Date(NA))
-    } 
-    
-    e8 <- subset(e6, self_reported_cancer != 1 | is.na(self_reported_cancer)) 
-    
-    max_study_date <- max(enrolled_disease$disease_date, na.rm = TRUE) # date of most recent diagnosis
-    
-    e10 <- e8 %>% 
-      dplyr::mutate(censor_type_cancer_control = ifelse(death_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                                        "death",
-                                                        ifelse(attrition_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                               "attrition",
-                                                               ifelse(incident_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(incident_date),
-                                                                      "other_cancer", 
-                                                                      ifelse(case_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                                             paste0(cancer_of_interest_ICD10, collapse = " & "), "study_end")))),
-                    censor_date_cancer_control = ifelse(death_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                                        paste0(death_date),
-                                                        ifelse(attrition_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                               paste0(attrition_date),
-                                                               ifelse(incident_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(incident_date),
-                                                                      paste0(incident_date), 
-                                                                      ifelse(case_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                                             paste0(case_date), paste0(max_study_date))))),
-      
-      censor_days_cancer_control = as.Date(censor_date_cancer_control) - enrollment_date, 
-      
-      case_control_cancer_control = ifelse(censor_type_cancer_control == paste0(cancer_of_interest_ICD10, collapse = " & "), 1, 0),
-      
-      censor_type_cancer_ignore = ifelse(death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                         "death",
-                                         ifelse(attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                "attrition",
-                                                ifelse(case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                       paste0(cancer_of_interest_ICD10, collapse = " & "), "study_end"))),
-      
-      censor_date_cancer_ignore = ifelse(death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(death_date), 
-                                         paste0(death_date),
-                                         ifelse(attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                paste0(attrition_date),
-                                                ifelse(case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                       paste0(case_date), paste0(max_study_date)))),
-      
-      censor_days_cancer_ignore = as.Date(censor_date_cancer_ignore) - enrollment_date,
-      
-      case_control_cancer_ignore = ifelse(censor_type_cancer_ignore == paste0(cancer_of_interest_ICD10, collapse = " & "), 1, 0)) 
-  }
-  
-  if (remove_prevalent_cancer == FALSE & remove_self_reported_cancer == FALSE) {
-    e <- dplyr::left_join(enrollment_date, prevalent_cancer_person_level[ , c("f.eid", "prevalent_cancer_date", "prevalent_cancer_type", "prevalent_cancer")], by = c("f.eid"))
-    e1 <- dplyr::left_join(e, self_report_cancer_final[ , c("f.eid","self_reported_cancer")], by = c("f.eid"))
-    e3 <- dplyr::left_join(e1, death_date2, by = c("f.eid"))
-    e4 <- dplyr::left_join(e3, attrition_date, by = c("f.eid"))
-    e5 <- dplyr::left_join(e4, cancer_of_interest_person_level[ , c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid")) 
-    
-    if (length(incident_cancer_list) != 0) {  
-      e6 <- dplyr::left_join(e5, incident_cancer_person_level[ , c("f.eid", "incident_date", "incident_type", "incident_cancer")], by = c("f.eid"))
+    if (length(incident_cancer_list) != 0) {
+      e6 <-
+        dplyr::left_join(e5, incident_cancer_person_level[, c("f.eid",
+                                                              "incident_date",
+                                                              "incident_type",
+                                                              "incident_cancer")], by = c("f.eid"))
     } else{
       e6 <- e5 %>% dplyr::mutate(incident_date = as.Date(NA))
     }
     
-    max_study_date <- max(enrolled_disease$disease_date, na.rm = TRUE) # date of most recent diagnosis
+    e8 <-
+      subset(e6, self_reported_cancer != 1 |
+               is.na(self_reported_cancer))
     
-    e10 <- e6 %>% 
-      dplyr::mutate(censor_type_cancer_control = ifelse(death_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                                        "death",
-                                                        ifelse(attrition_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                               "attrition",
-                                                               ifelse(incident_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(incident_date),
-                                                                      "other_cancer", 
-                                                                      ifelse(case_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                                             paste0(cancer_of_interest_ICD10, collapse = " & "), "study_end")))),
-                    censor_date_cancer_control = ifelse(death_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                                        paste0(death_date),
-                                                        ifelse(attrition_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                               paste0(attrition_date),
-                                                               ifelse(incident_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(incident_date), 
-                                                                      paste0(incident_date), 
-                                                                      ifelse(case_date == pmin(death_date, attrition_date, incident_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                                             paste0(case_date), paste0(max_study_date))))),
-      
-      censor_days_cancer_control = as.Date(censor_date_cancer_control) - enrollment_date, 
-      
-      case_control_cancer_control = ifelse(censor_type_cancer_control == paste0(cancer_of_interest_ICD10, collapse = " & "), 1, 0),
-      
-      censor_type_cancer_ignore = ifelse(death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(death_date), 
-                                         "death",
-                                         ifelse(attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                "attrition",
-                                                ifelse(case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                       paste0(cancer_of_interest_ICD10, collapse = " & "), "study_end"))),
-      
-      censor_date_cancer_ignore = ifelse(death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(death_date),
-                                         paste0(death_date),
-                                         ifelse(attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(attrition_date),
-                                                paste0(attrition_date),
-                                                ifelse(case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) & !is.na(case_date),
-                                                       paste0(case_date), paste0(max_study_date)))),
-      
-      censor_days_cancer_ignore = as.Date(censor_date_cancer_ignore) - enrollment_date,
-      
-      case_control_cancer_ignore = ifelse(censor_type_cancer_ignore == paste0(cancer_of_interest_ICD10, collapse = " & "), 1, 0)) 
+    max_study_date <-
+      max(enrolled_disease$disease_date, na.rm = TRUE) # date of most recent diagnosis
+    
+    e10 <- e8 %>%
+      dplyr::mutate(
+        censor_type_cancer_control = ifelse(
+          death_date == pmin(
+            death_date,
+            attrition_date,
+            incident_date,
+            case_date,
+            na.rm = TRUE
+          ) & !is.na(death_date),
+          "death",
+          ifelse(
+            attrition_date == pmin(
+              death_date,
+              attrition_date,
+              incident_date,
+              case_date,
+              na.rm = TRUE
+            ) & !is.na(attrition_date),
+            "attrition",
+            ifelse(
+              incident_date == pmin(
+                death_date,
+                attrition_date,
+                incident_date,
+                case_date,
+                na.rm = TRUE
+              ) & !is.na(incident_date),
+              "other_cancer",
+              ifelse(
+                case_date == pmin(
+                  death_date,
+                  attrition_date,
+                  incident_date,
+                  case_date,
+                  na.rm = TRUE
+                ) & !is.na(case_date),
+                paste0(cancer_of_interest_ICD10, collapse = " & "),
+                "study_end"
+              )
+            )
+          )
+        ),
+        censor_date_cancer_control = ifelse(
+          death_date == pmin(
+            death_date,
+            attrition_date,
+            incident_date,
+            case_date,
+            na.rm = TRUE
+          ) & !is.na(death_date),
+          paste0(death_date),
+          ifelse(
+            attrition_date == pmin(
+              death_date,
+              attrition_date,
+              incident_date,
+              case_date,
+              na.rm = TRUE
+            ) & !is.na(attrition_date),
+            paste0(attrition_date),
+            ifelse(
+              incident_date == pmin(
+                death_date,
+                attrition_date,
+                incident_date,
+                case_date,
+                na.rm = TRUE
+              ) & !is.na(incident_date),
+              paste0(incident_date),
+              ifelse(
+                case_date == pmin(
+                  death_date,
+                  attrition_date,
+                  incident_date,
+                  case_date,
+                  na.rm = TRUE
+                ) & !is.na(case_date),
+                paste0(case_date),
+                paste0(max_study_date)
+              )
+            )
+          )
+        ),
+        
+        censor_days_cancer_control = as.Date(censor_date_cancer_control) - enrollment_date,
+        
+        case_control_cancer_control = ifelse(
+          censor_type_cancer_control == paste0(cancer_of_interest_ICD10, collapse = " & "),
+          1,
+          0
+        ),
+        
+        censor_type_cancer_ignore = ifelse(
+          death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+            !is.na(death_date),
+          "death",
+          ifelse(
+            attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+              !is.na(attrition_date),
+            "attrition",
+            ifelse(
+              case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+                !is.na(case_date),
+              paste0(cancer_of_interest_ICD10, collapse = " & "),
+              "study_end"
+            )
+          )
+        ),
+        
+        censor_date_cancer_ignore = ifelse(
+          death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+            !is.na(death_date),
+          paste0(death_date),
+          ifelse(
+            attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+              !is.na(attrition_date),
+            paste0(attrition_date),
+            ifelse(
+              case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+                !is.na(case_date),
+              paste0(case_date),
+              paste0(max_study_date)
+            )
+          )
+        ),
+        
+        censor_days_cancer_ignore = as.Date(censor_date_cancer_ignore) - enrollment_date,
+        
+        case_control_cancer_ignore = ifelse(
+          censor_type_cancer_ignore == paste0(cancer_of_interest_ICD10, collapse = " & "),
+          1,
+          0
+        )
+      )
+  }
+  
+  if (remove_prevalent_cancer == FALSE &
+      remove_self_reported_cancer == FALSE) {
+    e <-
+      dplyr::left_join(enrollment_date,
+                       prevalent_cancer_person_level[, c("f.eid",
+                                                         "prevalent_cancer_date",
+                                                         "prevalent_cancer_type",
+                                                         "prevalent_cancer")],
+                       by = c("f.eid"))
+    e1 <-
+      dplyr::left_join(e, self_report_cancer_final[, c("f.eid", "self_reported_cancer")], by = c("f.eid"))
+    e3 <- dplyr::left_join(e1, death_date2, by = c("f.eid"))
+    e4 <- dplyr::left_join(e3, attrition_date, by = c("f.eid"))
+    e5 <-
+      dplyr::left_join(e4, cancer_of_interest_person_level[, c("f.eid", "case_date", "case_type", "case_control")], by = c("f.eid"))
+    
+    if (length(incident_cancer_list) != 0) {
+      e6 <-
+        dplyr::left_join(e5, incident_cancer_person_level[, c("f.eid",
+                                                              "incident_date",
+                                                              "incident_type",
+                                                              "incident_cancer")], by = c("f.eid"))
+    } else{
+      e6 <- e5 %>% dplyr::mutate(incident_date = as.Date(NA))
+    }
+    
+    max_study_date <-
+      max(enrolled_disease$disease_date, na.rm = TRUE) # date of most recent diagnosis
+    
+    e10 <- e6 %>%
+      dplyr::mutate(
+        censor_type_cancer_control = ifelse(
+          death_date == pmin(
+            death_date,
+            attrition_date,
+            incident_date,
+            case_date,
+            na.rm = TRUE
+          ) & !is.na(death_date),
+          "death",
+          ifelse(
+            attrition_date == pmin(
+              death_date,
+              attrition_date,
+              incident_date,
+              case_date,
+              na.rm = TRUE
+            ) & !is.na(attrition_date),
+            "attrition",
+            ifelse(
+              incident_date == pmin(
+                death_date,
+                attrition_date,
+                incident_date,
+                case_date,
+                na.rm = TRUE
+              ) & !is.na(incident_date),
+              "other_cancer",
+              ifelse(
+                case_date == pmin(
+                  death_date,
+                  attrition_date,
+                  incident_date,
+                  case_date,
+                  na.rm = TRUE
+                ) & !is.na(case_date),
+                paste0(cancer_of_interest_ICD10, collapse = " & "),
+                "study_end"
+              )
+            )
+          )
+        ),
+        censor_date_cancer_control = ifelse(
+          death_date == pmin(
+            death_date,
+            attrition_date,
+            incident_date,
+            case_date,
+            na.rm = TRUE
+          ) & !is.na(death_date),
+          paste0(death_date),
+          ifelse(
+            attrition_date == pmin(
+              death_date,
+              attrition_date,
+              incident_date,
+              case_date,
+              na.rm = TRUE
+            ) & !is.na(attrition_date),
+            paste0(attrition_date),
+            ifelse(
+              incident_date == pmin(
+                death_date,
+                attrition_date,
+                incident_date,
+                case_date,
+                na.rm = TRUE
+              ) & !is.na(incident_date),
+              paste0(incident_date),
+              ifelse(
+                case_date == pmin(
+                  death_date,
+                  attrition_date,
+                  incident_date,
+                  case_date,
+                  na.rm = TRUE
+                ) & !is.na(case_date),
+                paste0(case_date),
+                paste0(max_study_date)
+              )
+            )
+          )
+        ),
+        
+        censor_days_cancer_control = as.Date(censor_date_cancer_control) - enrollment_date,
+        
+        case_control_cancer_control = ifelse(
+          censor_type_cancer_control == paste0(cancer_of_interest_ICD10, collapse = " & "),
+          1,
+          0
+        ),
+        
+        censor_type_cancer_ignore = ifelse(
+          death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+            !is.na(death_date),
+          "death",
+          ifelse(
+            attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+              !is.na(attrition_date),
+            "attrition",
+            ifelse(
+              case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+                !is.na(case_date),
+              paste0(cancer_of_interest_ICD10, collapse = " & "),
+              "study_end"
+            )
+          )
+        ),
+        
+        censor_date_cancer_ignore = ifelse(
+          death_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+            !is.na(death_date),
+          paste0(death_date),
+          ifelse(
+            attrition_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+              !is.na(attrition_date),
+            paste0(attrition_date),
+            ifelse(
+              case_date == pmin(death_date, attrition_date, case_date, na.rm = TRUE) &
+                !is.na(case_date),
+              paste0(case_date),
+              paste0(max_study_date)
+            )
+          )
+        ),
+        
+        censor_days_cancer_ignore = as.Date(censor_date_cancer_ignore) - enrollment_date,
+        
+        case_control_cancer_ignore = ifelse(
+          censor_type_cancer_ignore == paste0(cancer_of_interest_ICD10, collapse = " & "),
+          1,
+          0
+        )
+      )
   }
   
   ###################################
@@ -639,14 +1176,18 @@ tte <- function(combined_data = NULL,
   ###################################
   Time_to_Event_final <- e10 #  creating final dataset
   
-  ######################### 
+  #########################
   # Return Generated Data #
   #########################
   end <- proc.time()
-  time.elapse <- round((end - begin)/60, 2)
+  time.elapse <- round((end - begin) / 60, 2)
   
   # User message
-  message(paste0("UKBBcleanR Message: Cleaning completed. Total time: ", time.elapse[3], " min."))
+  message(paste0(
+    "UKBBcleanR Message: Cleaning completed. Total time: ",
+    time.elapse[3],
+    " min."
+  ))
   
   return(Time_to_Event_final)
 }

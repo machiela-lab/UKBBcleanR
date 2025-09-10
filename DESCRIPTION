@@ -1,10 +1,10 @@
 Package: UKBBcleanR
 Title: Prepare electronic medical record data from the UK Biobank for time-to-event analyses
-Version: 0.1.2
-Date: 2022-11-22
+Version: 0.1.3
+Date: 2025-09-10
 Authors@R:
     c(person(given = "Alexander",
-             family = "Depaulis",
+             family = "DePaulis",
              role = c("aut", "cph"),
              email = "alexander.depaulis@nih.gov"),
       person(given = "Derek W.",
@@ -37,7 +37,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.2
 Depends: 
     R (>= 3.5.0)
 Imports: 
