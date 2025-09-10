@@ -8,7 +8,7 @@ UKBBcleanR: Prepare electronic medical record data from the UK Biobank for time-
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7301712.svg)](https://doi.org/10.5281/zenodo.7301712)
 <!-- badges: end -->
 
-**Date repository last updated**: January 26, 2023
+**Date repository last updated**: September 10, 2025
 
 ### Overview
 
@@ -40,25 +40,25 @@ To install the development version from GitHub:
 </tr>
 </thead>
 <tbody>
-<td><code>tte</code></td>
+<td><a href='R/tte.R'><code>tte</code></a></td>
 <td>Prepares time-to-event data from raw <a href="https://www.ukbiobank.ac.uk/">UK Biobank</a> electronic medical record data.</td>
 </tr>
 </tbody>
-<table>
+</table>
 
 The repository also includes the resources and code to create the project hex sticker.
 
 ### Authors
 
-* **Alexander Depaulis** - *Integrative Tumor Epidemiology Branch (ITEB), Division of Cancer Epidemiology and Genetics (DCEG), National Cancer Institute (NCI), National Institutes of Health (NIH), Rockville, Maryland (MD), USA* - [GitHub](https://github.com/adepaulis1)
+* **Alexander DePaulis** - *Integrative Tumor Epidemiology Branch (ITEB), Division of Cancer Epidemiology and Genetics (DCEG), National Cancer Institute (NCI), National Institutes of Health (NIH), Rockville, Maryland (MD), USA* - [GitHub](https://github.com/adepaulis1)
 
-* **Derek W. Brown** - *ITEB, DCEG, NCI, NIH, Rockville, MD, USA (original)* - [GitHub](https://github.com/derekbrown12) - [ORCID](https://orcid.org/0000-0001-8393-1713)
+* **Derek W. Brown** - *Foundation Medicine, Boston, Massachusetts (MA), USA (current)* - *ITEB, DCEG, NCI, NIH, Rockville, MD, USA (original)* - [GitHub](https://github.com/derekbrown12) - [ORCID](https://orcid.org/0000-0001-8393-1713)
 
-* **Aubrey K. Hubbard** - *ITEB, DCEG, NCI, NIH, Rockville, MD, USA* - [ORCID](https://orcid.org/0000-0003-4052-1110)
+* **Aubrey K. Hubbard** - *DLH, LLC, (formerly Social & Scientific Systems, Inc.) Bethesda, MA, USA (current)* *ITEB, DCEG, NCI, NIH, Rockville, MD, USA* - [ORCID](https://orcid.org/0000-0003-4052-1110)
 
 See also the list of [contributors](https://github.com/machiela-lab/UKBBcleanR/graphs/contributors) who participated in this package, including:
 
-* **Ian D. Buller** - *Social & Scientific Systems, Inc., a division of DLH Corporation, Silver Spring, Maryland (current)* - *Occupational and Environmental Epidemiology Branch, Division of Cancer Epidemiology and Genetics, National Cancer Institute, National Institutes of Health, Rockville, Maryland (original)* - [GitHub](https://github.com/idblr) - [ORCID](https://orcid.org/0000-0001-9477-8582)
+* **Ian D. Buller** - *DLH, LLC, (formerly Social & Scientific Systems, Inc.) Bethesda, Maryland (current)* - *Occupational and Environmental Epidemiology Branch, Division of Cancer Epidemiology and Genetics, National Cancer Institute, National Institutes of Health, Rockville, Maryland (original)* - [GitHub](https://github.com/idblr) - [ORCID](https://orcid.org/0000-0001-9477-8582)
 
 * **Mitchell J. Machiela** - *ITEB, DCEG, NCI, NIH, Rockville, MD, USA* - [GitHub](https://github.com/machiela) - [ORCID](https://orcid.org/0000-0001-6538-9705)
 
@@ -88,44 +88,47 @@ library(UKBBcleanR)
 
 ##### Input UKBBcleanR sample data
 
- # Use combined data set
- testdata <- as.data.frame(combined_data)
- 
- # Set ICD-10 outcome of interest
- cancer_outcome <- c("C911") 
- 
- # Set prevalent cancers to identify in data cleaning
- prevalent_cancers <- c("D37", "D38", "D39", "D40", "D41", "D42",
-                        "D43", "D44", "D45", "D46", "D47", "D48") 
- 
- # Set incident cancers to identify in data cleaning
- incident_cancers <- c("C900") 
+# Use combined data set
+testdata <- as.data.frame(combined_data)
+
+# Set ICD-10 outcome of interest
+cancer_outcome <- c("C911") 
+
+# Set prevalent cancers to identify in data cleaning
+prevalent_cancers <- c("D37", "D38", "D39", "D40", "D41", "D42",
+                      "D43", "D44", "D45", "D46", "D47", "D48") 
+
+# Set incident cancers to identify in data cleaning
+incident_cancers <- c("C900") 
  
 # ------- #
 # Run tte #
 # ------- #
 
 # Run without removing prevalent cancers from analysis
-test1 <- tte(combined_data = testdata, 
-             cancer_of_interest_ICD10 = cancer_outcome,
-             prevalent_cancer_list = prevalent_cancers, 
-             prevalent_C_cancers = TRUE, 
-             incident_cancer_list = incident_cancers, 
-             remove_prevalent_cancer = FALSE, 
-             remove_self_reported_cancer = FALSE)
+test1 <- tte(
+  combined_data = testdata, 
+  cancer_of_interest_ICD10 = cancer_outcome,
+  prevalent_cancer_list = prevalent_cancers, 
+  prevalent_C_cancers = TRUE, 
+  incident_cancer_list = incident_cancers, 
+  remove_prevalent_cancer = FALSE, 
+  remove_self_reported_cancer = FALSE
+)
             
 table(test1$case_control_cancer_ignore)  # tte outcome ignoring other incident cancers
 table(test1$case_control_cancer_control) # tte outcome controlling for other incident cancers
 
-
 # Run with removing prevalent cancers from analysis
-test2 <- tte(combined_data = testdata, 
-             cancer_of_interest_ICD10 = cancer_outcome,
-             prevalent_cancer_list = prevalent_cancers, 
-             prevalent_C_cancers = TRUE, 
-             incident_cancer_list = incident_cancers, 
-             remove_prevalent_cancer = TRUE, 
-             remove_self_reported_cancer = TRUE)
+test2 <- tte(
+  combined_data = testdata, 
+  cancer_of_interest_ICD10 = cancer_outcome,
+  prevalent_cancer_list = prevalent_cancers, 
+  prevalent_C_cancers = TRUE, 
+  incident_cancer_list = incident_cancers, 
+  remove_prevalent_cancer = TRUE, 
+  remove_self_reported_cancer = TRUE
+)
 table(test2$case_control_cancer_ignore)  # tte outcome ignoring other incident cancers
 table(test2$case_control_cancer_control) # tte outcome controlling for other incident cancers
 ```
@@ -146,4 +149,4 @@ When citing this package for publication, please cite follow:
 
 ### Questions? Feedback?
 
-For questions about the package please contact the maintainer [Dr. Derek Brown](mailto:derek.brown@nih.gov) or [submit a new issue](https://github.com/machiela-lab/UKBBcleanR/issues).
+For questions about the package please contact the maintainer [Dr. Derek Brown](mailto:derek9@gwmail.gwu.edu) or [submit a new issue](https://github.com/machiela-lab/UKBBcleanR/issues).
